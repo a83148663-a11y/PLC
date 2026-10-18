@@ -88,9 +88,9 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-sm md:text-base tracking-wide text-white leading-tight">PLC学习与工控现场调试全能工作台</h1>
-            <span class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/60">V1.0 专业版</span>
+            <span class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/60">V1.1 专业版</span>
           </div>
-          <p class="text-[11px] text-slate-400 hidden md:block">西门子 S7-200 SMART / 1200 / 1500 · 变频器驱动 · 现场通信调试 · 硬件成套速算</p>
+          <p class="text-[11px] text-slate-400 hidden md:block">西门子 S7-200 SMART / 1200 / 1500 · 变频器驱动 · DDS3366D 电表 · 串口调试 · 硬件选型</p>
         </div>
       </div>
     </div>
@@ -102,7 +102,7 @@
         <svg class="w-4 h-4 text-slate-400 group-hover:text-cyan-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <span class="hidden sm:inline text-slate-400 group-hover:text-slate-200">搜索指令/故障码/寄存器/计算器...</span>
+        <span class="hidden sm:inline text-slate-400 group-hover:text-slate-200">搜索指令/故障码/寄存器/电表/计算器...</span>
         <span class="sm:hidden text-slate-400">搜索</span>
         <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-900 text-slate-400 border border-slate-700 rounded shadow-sm">Ctrl+K</kbd>
       </button>
@@ -215,10 +215,10 @@
           </div>
           <div class="space-y-0.5">
             <button onclick="switchTab('tab-serial')" data-tab="tab-serial" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/80 border-l-2 border-transparent transition text-left">
-              <svg class="w-4 h-4 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
               <div class="truncate">
                 <div class="font-medium">Web Serial 在线串口台</div>
-                <div class="text-[10px] text-slate-500 font-normal">RS485 RTU 调试 + V20 控制</div>
+                <div class="text-[10px] text-emerald-400 font-normal">RS485 · V20变频器 + DDS3366D电表</div>
               </div>
             </button>
             <button onclick="switchTab('tab-hardware')" data-tab="tab-hardware" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/80 border-l-2 border-transparent transition text-left">
@@ -236,7 +236,7 @@
       <!-- Sidebar footer info -->
       <div class="p-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
         <span class="font-mono">工控工程师口袋工具箱</span>
-        <span class="text-cyan-400 font-mono">Ready</span>
+        <span class="text-emerald-400 font-mono">DDS3366D 就绪</span>
       </div>
     </aside>
 
@@ -2395,6 +2395,7 @@
 
 <!-- ==================== MODULE 7 & 8 MARKUP ==================== -->
 
+
 <!-- ==========================================
      PANEL 1: Web Serial Online Debug Terminal
      id: tab-serial
@@ -2504,8 +2505,33 @@
   <!-- Middle Grid: Left V20 Inverter Quick Controls | Right Custom Frame Sender -->
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <!-- Left: V20 Quick Controls (7 cols) -->
+        <!-- Left: Device Controls (7 cols) -->
     <div class="lg:col-span-7 space-y-4">
-      <div id="v20-control-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 transition-opacity">
+
+      <!-- Device Selector (V20 Inverter vs DDS3366D Energy Meter) -->
+      <div class="flex items-center justify-between p-1.5 bg-gray-100 dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-inner">
+        <div class="flex items-center gap-1.5">
+          <button id="btn-device-vfd" onclick="switchSerialDevice('vfd')" type="button" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[#0066B3] text-white shadow transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            西门子 V20 变频器
+          </button>
+          <button id="btn-device-meter" onclick="switchSerialDevice('meter')" type="button" class="px-3.5 py-1.5 text-xs font-medium rounded-lg text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-200 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            雅达 DDS3366D 导轨电表
+            <span class="px-1.5 py-0.2 text-[9px] font-mono rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">New</span>
+          </button>
+        </div>
+        <div class="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400 px-2 font-mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>当前模式: <strong id="active-device-name" class="text-cyan-600 dark:text-cyan-400 font-sans">西门子 V20 变频器</strong></span>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- Siemens V20 Inverter Quick Controls Card                                  -->
+      <!-- ========================================================================= -->
+      <div id="device-panel-v20" class="space-y-4">
+        <div id="v20-control-card" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 transition-opacity">
         <div class="flex items-center justify-between pb-3 border-b border-gray-100">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-[#009999]"></span>
@@ -2646,10 +2672,223 @@
           </div>
         </div>
       </div>
-    </div>
+      </div>
 
-    <!-- Right: Custom Hex Frame Sender (5 cols) -->
-    <div class="lg:col-span-5 space-y-4">
+      <!-- ========================================================================= -->
+      <!-- DDS3366D Electric Energy Meter Debugging Card (7 cols)                    -->
+      <!-- ========================================================================= -->
+      <div id="device-panel-meter" class="hidden bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-5 space-y-4">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100 dark:border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-gray-800 dark:text-slate-100 text-sm">雅达 DDS3366D 单相导轨电能表</h3>
+                <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/60">Modbus-RTU</span>
+                <span id="meter-model-badge" class="hidden text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-50 dark:bg-cyan-950/80 text-cyan-600 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60">DDS3366D</span>
+              </div>
+              <p class="text-[11px] text-gray-500 dark:text-slate-400">单相两线电能计量 · 电压/电流/有功功率/功率因数/电网频率/四象限有功电能实时遥测</p>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Slave ID -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 bg-gray-50 dark:bg-slate-950 px-2 py-1 rounded-lg border border-gray-200 dark:border-slate-800 text-xs">
+              <span class="text-gray-400">站号:</span>
+              <input id="meter-slave-id" type="number" min="1" max="247" value="1" onchange="syncMeterSlaveId(this.value)" class="w-10 bg-transparent text-center font-mono font-bold text-cyan-600 dark:text-cyan-400 focus:outline-none">
+            </div>
+            <button id="meter-poll-btn" onclick="toggleMeterPolling()" type="button" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-gray-300 dark:border-slate-700 hover:border-cyan-500 bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:text-cyan-500 flex items-center gap-1.5 transition">
+              <span id="meter-poll-indicator" class="w-2 h-2 rounded-full bg-gray-400"></span>
+              <span id="meter-poll-text">自动抄表(2s)</span>
+            </button>
+            <button onclick="readMeterAllParameters()" type="button" class="px-3 py-1 text-xs font-bold rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-sm flex items-center gap-1 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              一键采集
+            </button>
+            <button onclick="simulateMeterFrame()" type="button" class="px-2 py-1 text-xs font-medium rounded-lg border border-cyan-300 dark:border-cyan-800/80 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-100 transition" title="无硬件时填入协议手册典型响应报文测试解析">
+              仿真回放
+            </button>
+          </div>
+        </div>
+
+        <!-- 6 大数字仪表看板 (3 cols x 2 rows) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <!-- 1. 电压 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 mb-1">
+              <span>电网电压 (U)</span>
+              <span class="font-mono text-[10px] text-gray-400">0006H</span>
+            </div>
+            <div class="flex items-baseline gap-1 my-0.5">
+              <span id="disp-meter-voltage" class="font-mono text-2xl font-black text-cyan-600 dark:text-cyan-400">---.-</span>
+              <span class="text-xs text-gray-400 font-mono">V</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px]">
+              <span id="disp-meter-v-tag" class="px-1.5 py-0.2 rounded font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/60">待测</span>
+              <span class="text-gray-400 font-mono">0.1V 分辨率</span>
+            </div>
+          </div>
+
+          <!-- 2. 电流 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 mb-1">
+              <span>负载电流 (I)</span>
+              <span class="font-mono text-[10px] text-gray-400">0007H~08H</span>
+            </div>
+            <div class="flex items-baseline gap-1 my-0.5">
+              <span id="disp-meter-current" class="font-mono text-2xl font-black text-emerald-600 dark:text-emerald-400">---.---</span>
+              <span class="text-xs text-gray-400 font-mono">A</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="text-gray-400 font-mono">双字 0.001A</span>
+              <span id="disp-meter-i-pct" class="font-mono text-emerald-600 dark:text-emerald-300">0.0%</span>
+            </div>
+          </div>
+
+          <!-- 3. 有功功率 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 mb-1">
+              <span>有功功率 (P)</span>
+              <span class="font-mono text-[10px] text-gray-400">0009H~0AH</span>
+            </div>
+            <div class="flex items-baseline gap-1 my-0.5">
+              <span id="disp-meter-power" class="font-mono text-2xl font-black text-amber-600 dark:text-amber-400">---.----</span>
+              <span class="text-xs text-gray-400 font-mono">kW</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px]">
+              <span id="disp-meter-power-w" class="text-gray-500 dark:text-slate-400 font-mono">---.- W</span>
+              <span class="text-gray-400 font-mono">负数补码</span>
+            </div>
+          </div>
+
+          <!-- 4. 功率因数 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 mb-1">
+              <span>功率因数 (cosφ)</span>
+              <span class="font-mono text-[10px] text-gray-400">000BH</span>
+            </div>
+            <div class="flex items-baseline gap-1 my-0.5">
+              <span id="disp-meter-pf" class="font-mono text-2xl font-black text-sky-600 dark:text-sky-400">-.---</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px]">
+              <span id="disp-meter-pf-type" class="px-1.5 py-0.2 rounded font-mono bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800/60">感性/纯阻</span>
+              <span class="text-gray-400 font-mono">0.001</span>
+            </div>
+          </div>
+
+          <!-- 5. 电网频率 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 mb-1">
+              <span>电网频率 (f)</span>
+              <span class="font-mono text-[10px] text-gray-400">000CH</span>
+            </div>
+            <div class="flex items-baseline gap-1 my-0.5">
+              <span id="disp-meter-freq" class="font-mono text-2xl font-black text-indigo-600 dark:text-indigo-400">--.--</span>
+              <span class="text-xs text-gray-400 font-mono">Hz</span>
+            </div>
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="text-emerald-600 dark:text-emerald-400 font-mono">基准 50.00Hz</span>
+              <span class="text-gray-400 font-mono">0.01Hz</span>
+            </div>
+          </div>
+
+          <!-- 6. 组合总有功电能 -->
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/60 dark:to-slate-950 p-3 rounded-xl border border-emerald-200 dark:border-emerald-600/40 flex flex-col justify-between shadow-sm">
+            <div class="flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300 mb-1">
+              <span class="font-bold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                组合总电能
+              </span>
+              <span class="font-mono text-[10px] text-emerald-600 dark:text-emerald-400/80">0000H~01H</span>
+            </div>
+            <div class="flex items-baseline gap-1 my-0.5">
+              <span id="disp-meter-energy-total" class="font-mono text-2xl font-black text-emerald-700 dark:text-emerald-300">----.--</span>
+              <span class="text-xs text-emerald-600 dark:text-emerald-400 font-mono">kWh</span>
+            </div>
+            <div class="text-[10px] text-gray-500 dark:text-slate-400 space-y-0.5 border-t border-emerald-100 dark:border-slate-800 pt-1">
+              <div class="flex justify-between"><span>正向:</span><span id="disp-meter-energy-pos" class="font-mono text-gray-700 dark:text-slate-200">--.--</span></div>
+              <div class="flex justify-between"><span>反向:</span><span id="disp-meter-energy-rev" class="font-mono text-gray-700 dark:text-slate-200">--.--</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部快捷控制与参数校准栏 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+          <!-- 1. 分项采集 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
+              <span class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                分项采集
+              </span>
+              <span class="text-[10px] font-mono text-gray-400">FC03 / FC53</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 text-xs">
+              <button onclick="readMeterElectricalOnly()" type="button" class="p-1.5 rounded-lg bg-gray-200 dark:bg-slate-800 hover:bg-cyan-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition text-left">
+                <div class="font-bold text-[11px] text-cyan-600 dark:text-cyan-400">读实时工况</div>
+                <div class="text-[9px] text-gray-400 font-mono">0006H~0CH</div>
+              </button>
+              <button onclick="readMeterEnergyOnly()" type="button" class="p-1.5 rounded-lg bg-gray-200 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition text-left">
+                <div class="font-bold text-[11px] text-emerald-600 dark:text-emerald-400">读累计电能</div>
+                <div class="text-[9px] text-gray-400 font-mono">0000H~05H</div>
+              </button>
+              <button onclick="readMeterModelAndVersion()" type="button" class="p-1.5 rounded-lg bg-gray-200 dark:bg-slate-800 hover:bg-purple-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition text-left">
+                <div class="font-bold text-[11px] text-purple-600 dark:text-purple-400">读型号版本</div>
+                <div class="text-[9px] text-gray-400 font-mono">FC53 专用扩展</div>
+              </button>
+              <button onclick="readMeterCTPT()" type="button" class="p-1.5 rounded-lg bg-gray-200 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 transition text-left">
+                <div class="font-bold text-[11px] text-amber-600 dark:text-amber-400">读变比波特率</div>
+                <div class="text-[9px] text-gray-400 font-mono">01FCH~FDH</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. RTC 时钟与一键对时 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-slate-300">
+              <span class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                RTC 时钟对时
+              </span>
+              <button onclick="readMeterRTC()" type="button" class="text-[10px] text-cyan-600 dark:text-cyan-400 hover:underline">读表时钟</button>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-1.5 rounded-lg font-mono text-[11px] flex items-center justify-between border border-gray-200 dark:border-slate-800">
+              <span class="text-gray-400">表时钟:</span>
+              <span id="disp-meter-rtc" class="text-cyan-600 dark:text-cyan-300 font-bold truncate">----/--/-- --:--:--</span>
+            </div>
+            <button onclick="syncMeterTimeWithPC()" type="button" class="w-full py-1.5 px-2 text-xs font-bold rounded-lg bg-gray-200 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white text-gray-700 dark:text-slate-200 transition flex items-center justify-center gap-1 shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              写入电脑时钟对时 (FC10)
+            </button>
+          </div>
+
+          <!-- 3. 电能安全清零 -->
+          <div class="bg-gray-50 dark:bg-slate-950 p-3 rounded-xl border border-gray-200 dark:border-slate-800 space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400">
+              <span class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                电能清零与编程
+              </span>
+              <span class="text-[10px] font-mono text-gray-400">0xA000/0227H</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-[11px] text-gray-600 dark:text-slate-400">
+              <input id="meter-unlock-cb" type="checkbox" onchange="toggleMeterClearBtn(this.checked)" class="rounded border-gray-300 text-rose-500 focus:ring-rose-500">
+              <label for="meter-unlock-cb" class="cursor-pointer select-none">
+                启用安全解锁 (0x5AA5)
+              </label>
+            </div>
+            <button id="meter-clear-btn" disabled onclick="executeMeterEnergyClear()" type="button" class="w-full py-1.5 px-2 text-xs font-bold rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 opacity-50 cursor-not-allowed hover:bg-rose-600 hover:text-white transition flex items-center justify-center gap-1 shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              执行电能清零 (0227H=0000)
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><div class="lg:col-span-5 space-y-4">
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <div class="flex items-center justify-between pb-3 border-b border-gray-100">
           <div class="flex items-center gap-2">
@@ -3180,6 +3419,7 @@
   </div>
 </div>
 
+
       </div>
     </main>
   </div>
@@ -3192,13 +3432,13 @@
         <svg class="w-5 h-5 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input id="global-search-input" type="text" placeholder="输入搜索词，支持指令名称、符号、变频器故障代码、Modbus寄存器、选型... (ESC退出)" class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-400 outline-none">
+        <input id="global-search-input" type="text" placeholder="输入搜索词，支持指令名称、符号、电表参数、变频器故障代码、Modbus寄存器、选型... (ESC退出)" class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-400 outline-none">
         <button onclick="closeSearchModal()" class="text-slate-400 hover:text-white px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700">ESC</button>
       </div>
 
       <!-- Quick Tips -->
       <div class="px-4 py-2 bg-slate-800/30 text-[11px] text-slate-400 border-b border-slate-800 flex items-center justify-between">
-        <span>快捷热词：<a href="javascript:void(0)" onclick="quickSearch('TON')" class="text-cyan-400 hover:underline">TON</a> · <a href="javascript:void(0)" onclick="quickSearch('F72')" class="text-cyan-400 hover:underline">F72</a> · <a href="javascript:void(0)" onclick="quickSearch('40100')" class="text-cyan-400 hover:underline">40100</a> · <a href="javascript:void(0)" onclick="quickSearch('PT100')" class="text-cyan-400 hover:underline">PT100</a> · <a href="javascript:void(0)" onclick="quickSearch('电子齿轮比')" class="text-cyan-400 hover:underline">电子齿轮比</a> · <a href="javascript:void(0)" onclick="quickSearch('SCL')" class="text-cyan-400 hover:underline">SCL</a></span>
+        <span>快捷热词：<a href="javascript:void(0)" onclick="quickSearch('DDS3366D')" class="text-emerald-400 hover:underline">DDS3366D电表</a> · <a href="javascript:void(0)" onclick="quickSearch('TON')" class="text-cyan-400 hover:underline">TON</a> · <a href="javascript:void(0)" onclick="quickSearch('F72')" class="text-cyan-400 hover:underline">F72</a> · <a href="javascript:void(0)" onclick="quickSearch('40100')" class="text-cyan-400 hover:underline">40100</a> · <a href="javascript:void(0)" onclick="quickSearch('PT100')" class="text-cyan-400 hover:underline">PT100</a> · <a href="javascript:void(0)" onclick="quickSearch('SCL')" class="text-cyan-400 hover:underline">SCL</a></span>
         <span id="search-result-count" class="font-mono text-cyan-400">0 结果</span>
       </div>
 
@@ -3429,6 +3669,8 @@
 
       // 4. Fixed feature items
       const features = [
+        { type: '在线测控', tab: 'tab-serial', title: '雅达 DDS3366D 单相导轨电能表测控', desc: '电压/电流/有功功率/功率因数/频率/电能实时采集、RTC时钟对时与清零', keywords: '电表 雅达 DDS3366D 电压 电流 功率因数 有功功率 频率 抄表 电能 对时 0006H 0000H' },
+        { type: '在线测控', tab: 'tab-serial', title: '西门子 SINAMICS V20 变频器串口控制', desc: 'RS485 Modbus RTU 启停使能 0x047E/0x047F/0x0C7F 与频率给定', keywords: 'V20 变频器 串口 RS485 启停 正转 反转 频率给定' },
         { type: '功能模块', tab: 'tab-mem', title: '西门子内存防重叠检测器', desc: '检测 VD/VW/VB 变量地址踩踏与大端序高低字节', keywords: '内存 重叠 踩踏 大端序 VD VW VB' },
         { type: '功能模块', tab: 'tab-mem', title: '梯形图 LAD 能流动态交互仿真', desc: '启保停、正反转互锁、TON接通延时导通仿真', keywords: '梯形图 LAD 启保停 互锁 TON 仿真 能流' },
         { type: '现场计算', tab: 'tab-motion', title: '运动控制脉冲当量与电子齿轮比速算', desc: '丝杠螺距、编码器分辨率、GCD化简电子齿轮比 B/A', keywords: '电子齿轮比 脉冲当量 伺服 步进 丝杠 减速比' },
@@ -3439,7 +3681,6 @@
         { type: '通讯调试', tab: 'tab-comm', title: 'Modbus RTU 报文生成器与 CRC16 校验', desc: 'FC01/02/03/04/05/06 生成 Hex 帧并计算 CRC16 (低字节在前)', keywords: 'Modbus RTU CRC16 报文 生成器 校验 03 06' },
         { type: '通讯调试', tab: 'tab-comm', title: 'S7-200 SMART Modbus 从站地址映射表', desc: '40001 ↔ VW 地址偏移换算与 HoldStart 指针', keywords: 'S7-200 SMART Modbus 从站 映射 40001 VW HoldStart' },
         { type: '驱动字典', tab: 'tab-vfd', title: '西门子 V20 / 台达 MS300 / 汇川 MD500 参数对比', desc: '控制字 40100 / 2000H 与频率给定 40101 / 1000H 寄存器', keywords: 'V20 MS300 MD500 控制字 40100 2000H 频率给定' },
-        { type: '在线调试', tab: 'tab-serial', title: 'Web Serial 原生串口调试终端', desc: '免驱动网页端 RS485 调试，V20 变频器一键正反转启停', keywords: '串口 Web Serial RS485 调试 终端 V20 波特率' },
         { type: '成套设计', tab: 'tab-hardware', title: 'IO 点数评估与西门子 S7-1200 模块自动选型', desc: '被控对象配置、裕量计算、SM模块配单并一键导出 Excel', keywords: 'IO 选型 S7-1200 模块 选型 配单 Excel 导出' },
         { type: '成套设计', tab: 'tab-hardware', title: '三相电机主回路元器件速算器', desc: '额定电流、推荐断路器、交流接触器、热继电器与电缆截面', keywords: '三相电机 断路器 接触器 热继 电缆 电流' }
       ];
@@ -3477,7 +3718,7 @@
       if (countEl) countEl.textContent = results.length + ' 结果';
 
       if (results.length === 0) {
-        listEl.innerHTML = '<div class="p-6 text-center text-slate-500 text-xs">未找到匹配内容，请尝试不同关键词（如 TON、F72、40100、PT100、选型）</div>';
+        listEl.innerHTML = '<div class="p-6 text-center text-slate-500 text-xs">未找到匹配内容，请尝试不同关键词（如 DDS3366D、电表、TON、F72、40100、PT100、选型）</div>';
         return;
       }
 
@@ -7186,19 +7427,65 @@ if (document.readyState === 'loading') {
 
     logTerminal(`RX &lt;&lt; ${hexStr} ${crcStatus}`, 'rx');
 
-    // Parse V20 Response: Function Code 0x03 Read Holding Registers
-    // Format: [Slave, 0x03, ByteCount, HighByte, LowByte, CRC_L, CRC_H]
+    // --- 1. DDS3366D Meter Decoders ---
     if (frameBytes.length >= 5 && frameBytes[1] === 0x03) {
       const byteCount = frameBytes[2];
-      if (byteCount >= 2 && frameBytes.length >= 3 + byteCount + 2) {
-        const regVal = (frameBytes[3] << 8) | frameBytes[4];
-        decodeV20ZSW(regVal);
+      const payload = frameBytes.slice(3, 3 + byteCount);
+
+      // Check for 26 bytes (13 registers: all electrical parameters from 0000H)
+      if (byteCount === 26) {
+        decodeDDS3366DData(payload, 0);
+        return;
       }
-    } else if (frameBytes.length >= 6 && frameBytes[1] === 0x06) {
+      // Check for 14 bytes: either electrical (0006H, 7 registers) or RTC (01F4H)
+      else if (byteCount === 14) {
+        // If first register looks like voltage (1000~3000 -> 100V~300V) or frequency at end is 4500~6500 (45~65Hz)
+        const lastReg = (payload[12] << 8) | payload[13];
+        if (lastReg >= 4500 && lastReg <= 6500) {
+          decodeDDS3366DData(payload, 6);
+          return;
+        } else {
+          decodeDDS3366DRTC(payload);
+          return;
+        }
+      }
+      // Check for 12 bytes: 6 registers energy
+      else if (byteCount === 12) {
+        decodeDDS3366DData(payload, 0);
+        return;
+      }
+      // Check for 2 bytes: V20 ZSW or Single register
+      else if (byteCount === 2) {
+        const regVal = (frameBytes[3] << 8) | frameBytes[4];
+        if (currentSerialDevice === 'vfd') {
+          decodeV20ZSW(regVal);
+        } else {
+          logTerminal(`[DDS3366D 寄存器返回] 值=0x${regVal.toString(16).padStart(4,'0')} (${regVal})`, 'info');
+        }
+        return;
+      }
+    } 
+    // --- 2. DDS3366D FC 0x53 Model Read ---
+    else if (frameBytes.length >= 5 && frameBytes[1] === 0x53) {
+      decodeDDS3366DModel(frameBytes);
+      return;
+    }
+    // --- 3. FC06 Single Register Write Echo ---
+    else if (frameBytes.length >= 6 && frameBytes[1] === 0x06) {
       const regAddr = (frameBytes[2] << 8) | frameBytes[3];
       const regVal = (frameBytes[4] << 8) | frameBytes[5];
-      logTerminal(`变频器 FC06 写入确认应答: 寄存器 0x${regAddr.toString(16).padStart(4,'0')} = 0x${regVal.toString(16).padStart(4,'0')} (${regVal})`, 'info');
-    } else if (frameBytes.length >= 3 && (frameBytes[1] & 0x80)) {
+      logTerminal(`Modbus FC06 写入成功应答: 寄存器 0x${regAddr.toString(16).padStart(4,'0')} = 0x${regVal.toString(16).padStart(4,'0')} (${regVal})`, 'info');
+      return;
+    } 
+    // --- 4. FC10 Multiple Registers Write Echo ---
+    else if (frameBytes.length >= 6 && frameBytes[1] === 0x10) {
+      const regAddr = (frameBytes[2] << 8) | frameBytes[3];
+      const regQty = (frameBytes[4] << 8) | frameBytes[5];
+      logTerminal(`Modbus FC10 批量写入成功应答: 起始 0x${regAddr.toString(16).padStart(4,'0')}, 写入 ${regQty} 个寄存器`, 'info');
+      return;
+    }
+    // --- 5. Modbus Exception Response ---
+    else if (frameBytes.length >= 3 && (frameBytes[1] & 0x80)) {
       const errCode = frameBytes[2];
       const errNames = {
         1: '非法功能码 (Illegal Function)',
@@ -7206,11 +7493,516 @@ if (document.readyState === 'loading') {
         3: '非法数据值 (Illegal Data Value)',
         4: '从站设备故障 (Slave Device Failure)'
       };
-      logTerminal(`Modbus 异常响应码: 0x${frameBytes[1].toString(16).toUpperCase()} -> ${errNames[errCode] || '未知错误 0x' + errCode.toString(16)}`, 'error');
+      logTerminal(`Modbus 异常应答: 功能码 0x${frameBytes[1].toString(16).toUpperCase()} -> ${errNames[errCode] || '未知错误 0x' + errCode.toString(16)}`, 'error');
+      return;
+    }
+
+  }
+
+
+  /* =========================================================================
+     PART 2.5: YADA DDS3366D Electric Energy Meter Support (Modbus-RTU)
+     ========================================================================= */
+
+  let currentSerialDevice = 'vfd'; // 'vfd' or 'meter'
+  let meterPollingTimer = null;
+
+  // Switch Active Device (V20 Inverter vs DDS3366D Energy Meter)
+  window.switchSerialDevice = function (device) {
+    currentSerialDevice = device;
+    const vfdPanel = document.getElementById('device-panel-v20');
+    const meterPanel = document.getElementById('device-panel-meter');
+    const btnVfd = document.getElementById('btn-device-vfd');
+    const btnMeter = document.getElementById('btn-device-meter');
+    const nameLabel = document.getElementById('active-device-name');
+
+    if (device === 'meter') {
+      if (vfdPanel) vfdPanel.classList.add('hidden');
+      if (meterPanel) meterPanel.classList.remove('hidden');
+
+      if (btnMeter) {
+        btnMeter.className = 'px-3.5 py-1.5 text-xs font-bold rounded-md bg-emerald-600 text-white shadow transition flex items-center gap-2';
+      }
+      if (btnVfd) {
+        btnVfd.className = 'px-3.5 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2';
+      }
+      if (nameLabel) nameLabel.textContent = '雅达 DDS3366D 导轨电表';
+
+      // Set default meter slave id
+      const meterSlaveInput = document.getElementById('meter-slave-id');
+      const serialSlaveInput = document.getElementById('serial-slave-id');
+      if (meterSlaveInput && serialSlaveInput) {
+        meterSlaveInput.value = serialSlaveInput.value || '1';
+      }
+
+      logTerminal('[模式切换] 当前串口测控设备已切换至: 雅达 DDS3366D 单相导轨电能表 (Modbus-RTU 9600 8-E-1/8-N-2)', 'info');
+    } else {
+      if (vfdPanel) vfdPanel.classList.remove('hidden');
+      if (meterPanel) meterPanel.classList.add('hidden');
+
+      if (btnVfd) {
+        btnVfd.className = 'px-3.5 py-1.5 text-xs font-bold rounded-md bg-[#0066B3] text-white shadow transition flex items-center gap-2';
+      }
+      if (btnMeter) {
+        btnMeter.className = 'px-3.5 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2';
+      }
+      if (nameLabel) nameLabel.textContent = '西门子 V20 变频器';
+
+      // Stop meter polling if running
+      if (meterPollingTimer) {
+        clearInterval(meterPollingTimer);
+        meterPollingTimer = null;
+        updateMeterPollButtonState(false);
+      }
+
+      logTerminal('[模式切换] 当前串口测控设备已切换至: 西门子 SINAMICS V20 变频器', 'info');
+    }
+  };
+
+  // Sync Meter Slave ID with global serial slave ID
+  window.syncMeterSlaveId = function (val) {
+    const sId = parseInt(val, 10) || 1;
+    const serialSlaveInput = document.getElementById('serial-slave-id');
+    if (serialSlaveInput) serialSlaveInput.value = sId;
+  };
+
+  function getMeterSlaveId() {
+    const el = document.getElementById('meter-slave-id');
+    return parseInt(el ? el.value : '1', 10) || 1;
+  }
+
+  // Read all electrical quantities (0000H~000CH, 13 registers)
+  window.readMeterAllParameters = function () {
+    const slaveId = getMeterSlaveId();
+    // FC 03, Start Address 0x0000, Quantity 0x000D (13)
+    const frame = [slaveId, 0x03, 0x00, 0x00, 0x00, 0x0D];
+    const crc = calcModbusCRC(frame);
+    frame.push(crc[0], crc[1]);
+
+    logTerminal(`[DDS3366D] 发送读取全电量命令 (0000H~000CH, 13点)... [${bytesToHex(frame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(frame));
+  };
+
+  // Read electrical values only (0006H~000CH, 7 registers: U, I, P, cosφ, f)
+  window.readMeterElectricalOnly = function () {
+    const slaveId = getMeterSlaveId();
+    // FC 03, Start Address 0x0006, Quantity 0x0007 (7)
+    const frame = [slaveId, 0x03, 0x00, 0x06, 0x00, 0x07];
+    const crc = calcModbusCRC(frame);
+    frame.push(crc[0], crc[1]);
+
+    logTerminal(`[DDS3366D] 发送读取工况电参 (0006H~000CH, 7点: 电压/电流/功率/因数/频率)... [${bytesToHex(frame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(frame));
+  };
+
+  // Read energy values only (0000H~0005H, 6 registers: Combined, Pos, Rev)
+  window.readMeterEnergyOnly = function () {
+    const slaveId = getMeterSlaveId();
+    // FC 03, Start Address 0x0000, Quantity 0x0006 (6)
+    const frame = [slaveId, 0x03, 0x00, 0x00, 0x00, 0x06];
+    const crc = calcModbusCRC(frame);
+    frame.push(crc[0], crc[1]);
+
+    logTerminal(`[DDS3366D] 发送读取电能命令 (0000H~0005H, 6点: 组合/正向/反向电能)... [${bytesToHex(frame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(frame));
+  };
+
+  // Read meter model and version (FC 0x53)
+  window.readMeterModelAndVersion = function () {
+    const slaveId = getMeterSlaveId();
+    // FC 53, Start 0x0001, Quantity 0x0007 (Model name)
+    const frame = [slaveId, 0x53, 0x00, 0x01, 0x00, 0x07];
+    const crc = calcModbusCRC(frame);
+    frame.push(crc[0], crc[1]);
+
+    logTerminal(`[DDS3366D] 发送扩展功能码 FC53 读取电表型号与版本 (0x01, 7寄存器)... [${bytesToHex(frame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(frame));
+  };
+
+  // Read CT & PT ratios (01FCH~01FDH)
+  window.readMeterCTPT = function () {
+    const slaveId = getMeterSlaveId();
+    // FC 03, Start Address 0x01FC, Quantity 0x0002
+    const frame = [slaveId, 0x03, 0x01, 0xFC, 0x00, 0x02];
+    const crc = calcModbusCRC(frame);
+    frame.push(crc[0], crc[1]);
+
+    logTerminal(`[DDS3366D] 发送读取 PT/CT 互感器变比 (01FCH~01FDH)... [${bytesToHex(frame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(frame));
+  };
+
+  // Read RTC time (01F4H~01FAH, 7 registers: Sec, Min, Hour, Week, Date, Month, Year)
+  window.readMeterRTC = function () {
+    const slaveId = getMeterSlaveId();
+    // FC 03, Start Address 0x01F4, Quantity 0x0007
+    const frame = [slaveId, 0x03, 0x01, 0xF4, 0x00, 0x07];
+    const crc = calcModbusCRC(frame);
+    frame.push(crc[0], crc[1]);
+
+    logTerminal(`[DDS3366D] 发送读取电表 RTC 时钟 (01F4H~01FAH, 7点)... [${bytesToHex(frame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(frame));
+  };
+
+  // Sync meter time with PC current time (FC 0x10 Write Multiple)
+  window.syncMeterTimeWithPC = function () {
+    const slaveId = getMeterSlaveId();
+    const now = new Date();
+    const sec = now.getSeconds();
+    const min = now.getMinutes();
+    const hour = now.getHours();
+    let week = now.getDay();
+    if (week === 0) week = 7; // Sunday = 7
+    const date = now.getDate();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear() % 100; // 2-digit year (e.g. 26)
+
+    // Modbus FC 10: [Slave, 0x10, 0x01, 0xF4, 0x00, 0x07, 0x0E, (sec), (min), (hour), (week), (date), (month), (year)]
+    const frame = [
+      slaveId, 0x10, 0x01, 0xF4, 0x00, 0x07, 0x0E,
+      0x00, sec,
+      0x00, min,
+      0x00, hour,
+      0x00, week,
+      0x00, date,
+      0x00, month,
+      0x00, year
+    ];
+    const crc = calcModbusCRC(frame);
+    frame.push(crc[0], crc[1]);
+
+    const timeStr = `${now.getFullYear()}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    logTerminal(`[DDS3366D] 写入电脑当前时钟 (${timeStr}, 星期${week}) 进行对时... [${bytesToHex(frame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(frame));
+  };
+
+  // Toggle Meter Clear Button lock
+  window.toggleMeterClearBtn = function (unlocked) {
+    const btn = document.getElementById('meter-clear-btn');
+    if (!btn) return;
+    if (unlocked) {
+      btn.disabled = false;
+      btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      btn.classList.add('hover:bg-rose-600', 'hover:text-white', 'cursor-pointer');
+      logTerminal('[安全提示] DDS3366D 电能清零保护已解除，执行清零时将先下发 0xA000 编程开关 (0x5AA5)。', 'warn');
+    } else {
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+      btn.classList.remove('hover:bg-rose-600', 'hover:text-white', 'cursor-pointer');
+    }
+  };
+
+  // Execute Meter Energy Clear
+  window.executeMeterEnergyClear = function () {
+    const slaveId = getMeterSlaveId();
+    if (!confirm('警告：您确定要将电表的累计电能彻底清零吗？此操作不可逆！')) {
+      return;
+    }
+
+    // Step 1: Unlock programming switch (Address 0xA000, value 0x5AA5)
+    const unlockFrame = [slaveId, 0x06, 0xA0, 0x00, 0x5A, 0xA5];
+    const unlockCrc = calcModbusCRC(unlockFrame);
+    unlockFrame.push(unlockCrc[0], unlockCrc[1]);
+
+    logTerminal(`[DDS3366D] 第一步: 下发编程开关 (0xA000 = 0x5AA5)... [${bytesToHex(unlockFrame)}]`, 'tx');
+    sendRawBytes(new Uint8Array(unlockFrame));
+
+    // Step 2: Clear Energy (Address 0x0227, value 0x0000) after 150ms
+    setTimeout(() => {
+      const clearFrame = [slaveId, 0x06, 0x02, 0x27, 0x00, 0x00];
+      const clearCrc = calcModbusCRC(clearFrame);
+      clearFrame.push(clearCrc[0], clearCrc[1]);
+
+      logTerminal(`[DDS3366D] 第二步: 下发电能清零命令 (0x0227 = 0x0000)... [${bytesToHex(clearFrame)}]`, 'tx');
+      sendRawBytes(new Uint8Array(clearFrame));
+
+      // Reset checkbox
+      const cb = document.getElementById('meter-unlock-cb');
+      if (cb) {
+        cb.checked = false;
+        window.toggleMeterClearBtn(false);
+      }
+    }, 200);
+  };
+
+  // Toggle Meter Auto Polling
+  function updateMeterPollButtonState(isPolling) {
+    const ind = document.getElementById('meter-poll-indicator');
+    const txt = document.getElementById('meter-poll-text');
+    const btn = document.getElementById('meter-poll-btn');
+    if (!ind || !txt) return;
+
+    if (isPolling) {
+      ind.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+      txt.textContent = '停止自动抄表';
+      btn.classList.add('border-emerald-500', 'text-emerald-400');
+    } else {
+      ind.className = 'w-2 h-2 rounded-full bg-slate-500';
+      txt.textContent = '自动循环抄表 (2s)';
+      btn.classList.remove('border-emerald-500', 'text-emerald-400');
     }
   }
 
-  // Disconnect Web Serial Port
+  window.toggleMeterPolling = function () {
+    if (meterPollingTimer) {
+      clearInterval(meterPollingTimer);
+      meterPollingTimer = null;
+      updateMeterPollButtonState(false);
+      logTerminal('[DDS3366D] 已停止自动循环抄表。', 'info');
+    } else {
+      updateMeterPollButtonState(true);
+      logTerminal('[DDS3366D] 已开启定时自动抄表 (2秒周期采集)...', 'info');
+      window.readMeterAllParameters();
+      meterPollingTimer = setInterval(() => {
+        window.readMeterAllParameters();
+      }, 2000);
+    }
+  };
+
+  // Helper: Decode signed 32-bit int
+  function toSigned32(val) {
+    return (val & 0x80000000) ? (val - 0x100000000) : val;
+  }
+  // Helper: Decode signed 16-bit int
+  function toSigned16(val) {
+    return (val & 0x8000) ? (val - 0x10000) : val;
+  }
+
+  // Decode DDS3366D Data Registers
+  function decodeDDS3366DData(bytes, startRegOffset) {
+    const numRegs = bytes.length / 2;
+
+    // Reading from 0000H: full 13 registers (26 bytes)
+    if (startRegOffset === 0 && numRegs >= 13) {
+      // 0000H~0001H: Combined Energy
+      const totalEnergyRaw = toSigned32((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]);
+      const totalEnergy = (totalEnergyRaw * 0.01).toFixed(2);
+
+      // 0002H~0003H: Forward Energy
+      const posEnergyRaw = toSigned32((bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7]);
+      const posEnergy = (posEnergyRaw * 0.01).toFixed(2);
+
+      // 0004H~0005H: Reverse Energy
+      const revEnergyRaw = toSigned32((bytes[8] << 24) | (bytes[9] << 16) | (bytes[10] << 8) | bytes[11]);
+      const revEnergy = (revEnergyRaw * 0.01).toFixed(2);
+
+      // 0006H: Voltage (0.1V)
+      const voltageRaw = (bytes[12] << 8) | bytes[13];
+      const voltage = (voltageRaw * 0.1).toFixed(1);
+
+      // 0007H~0008H: Current (0.001A)
+      const currentRaw = (bytes[14] << 24) | (bytes[15] << 16) | (bytes[16] << 8) | bytes[17];
+      const current = (currentRaw * 0.001).toFixed(3);
+
+      // 0009H~000AH: Active Power (0.0001 kW = 0.1 W, signed)
+      const powerRaw = toSigned32((bytes[18] << 24) | (bytes[19] << 16) | (bytes[20] << 8) | bytes[21]);
+      const powerKW = (powerRaw * 0.0001).toFixed(4);
+      const powerW = (powerRaw * 0.1).toFixed(1);
+
+      // 000BH: Power Factor (0.001, signed)
+      const pfRaw = toSigned16((bytes[22] << 8) | bytes[23]);
+      const pf = (pfRaw * 0.001).toFixed(3);
+
+      // 000CH: Frequency (0.01Hz)
+      const freqRaw = (bytes[24] << 8) | bytes[25];
+      const freq = (freqRaw * 0.01).toFixed(2);
+
+      updateMeterDisplay({
+        voltage, current, powerKW, powerW, pf, freq,
+        totalEnergy, posEnergy, revEnergy
+      });
+
+      logTerminal(`[DDS3366D 电表遥测成功] 电压=${voltage}V, 电流=${current}A, 功率=${powerKW}kW (${powerW}W), 因数=${pf}, 频率=${freq}Hz, 总电能=${totalEnergy}kWh`, 'info');
+      return true;
+    }
+
+    // Reading from 0006H: 7 registers (14 bytes: Voltage, Current, Power, PF, Freq)
+    if (startRegOffset === 6 && numRegs >= 7) {
+      const voltage = (((bytes[0] << 8) | bytes[1]) * 0.1).toFixed(1);
+      const currentRaw = (bytes[2] << 24) | (bytes[3] << 16) | (bytes[4] << 8) | bytes[5];
+      const current = (currentRaw * 0.001).toFixed(3);
+      const powerRaw = toSigned32((bytes[6] << 24) | (bytes[7] << 16) | (bytes[8] << 8) | bytes[9]);
+      const powerKW = (powerRaw * 0.0001).toFixed(4);
+      const powerW = (powerRaw * 0.1).toFixed(1);
+      const pfRaw = toSigned16((bytes[10] << 8) | bytes[11]);
+      const pf = (pfRaw * 0.001).toFixed(3);
+      const freq = (((bytes[12] << 8) | bytes[13]) * 0.01).toFixed(2);
+
+      updateMeterDisplay({ voltage, current, powerKW, powerW, pf, freq });
+      logTerminal(`[DDS3366D 工况电参] 电压=${voltage}V, 电流=${current}A, 功率=${powerKW}kW, 因数=${pf}, 频率=${freq}Hz`, 'info');
+      return true;
+    }
+
+    // Reading from 0000H: 6 registers (12 bytes: Energy only)
+    if (startRegOffset === 0 && numRegs === 6) {
+      const totalEnergy = (toSigned32((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) * 0.01).toFixed(2);
+      const posEnergy = (toSigned32((bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7]) * 0.01).toFixed(2);
+      const revEnergy = (toSigned32((bytes[8] << 24) | (bytes[9] << 16) | (bytes[10] << 8) | bytes[11]) * 0.01).toFixed(2);
+
+      const elTotal = document.getElementById('disp-meter-energy-total');
+      const elPos = document.getElementById('disp-meter-energy-pos');
+      const elRev = document.getElementById('disp-meter-energy-rev');
+      if (elTotal) elTotal.textContent = totalEnergy;
+      if (elPos) elPos.textContent = posEnergy;
+      if (elRev) elRev.textContent = revEnergy;
+
+      logTerminal(`[DDS3366D 电能计量] 组合总电能=${totalEnergy}kWh, 正向=${posEnergy}kWh, 反向=${revEnergy}kWh`, 'info');
+      return true;
+    }
+
+    return false;
+  }
+
+  // Update Meter UI Elements
+  function updateMeterDisplay(data) {
+    if (data.voltage !== undefined) {
+      const el = document.getElementById('disp-meter-voltage');
+      const tag = document.getElementById('disp-meter-v-tag');
+      if (el) el.textContent = data.voltage;
+      if (tag) {
+        const v = parseFloat(data.voltage);
+        if (v > 250.0) {
+          tag.textContent = '过压';
+          tag.className = 'px-1.5 py-0.5 rounded font-mono bg-rose-950 text-rose-400 border border-rose-800/80';
+        } else if (v < 185.0) {
+          tag.textContent = '欠压';
+          tag.className = 'px-1.5 py-0.5 rounded font-mono bg-amber-950 text-amber-400 border border-amber-800/80';
+        } else {
+          tag.textContent = '正常 220V';
+          tag.className = 'px-1.5 py-0.5 rounded font-mono bg-emerald-950 text-emerald-400 border border-emerald-800/80';
+        }
+      }
+    }
+
+    if (data.current !== undefined) {
+      const el = document.getElementById('disp-meter-current');
+      const pct = document.getElementById('disp-meter-i-pct');
+      if (el) el.textContent = data.current;
+      if (pct) {
+        const c = parseFloat(data.current);
+        const ratio = Math.min(100, (c / 60.0) * 100).toFixed(1); // 60A Max
+        pct.textContent = `${ratio}% 额定`;
+      }
+    }
+
+    if (data.powerKW !== undefined) {
+      const elKW = document.getElementById('disp-meter-power');
+      const elW = document.getElementById('disp-meter-power-w');
+      if (elKW) elKW.textContent = data.powerKW;
+      if (elW) elW.textContent = `${data.powerW} W`;
+    }
+
+    if (data.pf !== undefined) {
+      const el = document.getElementById('disp-meter-pf');
+      const typeEl = document.getElementById('disp-meter-pf-type');
+      if (el) el.textContent = data.pf;
+      if (typeEl) {
+        const p = parseFloat(data.pf);
+        if (p < 0) {
+          typeEl.textContent = '容性负载 (反向)';
+          typeEl.className = 'px-1.5 py-0.5 rounded font-mono bg-amber-950 text-amber-300 border border-amber-800/80';
+        } else if (p >= 0.95) {
+          typeEl.textContent = '优良 (>0.95)';
+          typeEl.className = 'px-1.5 py-0.5 rounded font-mono bg-emerald-950 text-emerald-300 border border-emerald-800/80';
+        } else {
+          typeEl.textContent = '感性负荷';
+          typeEl.className = 'px-1.5 py-0.5 rounded font-mono bg-sky-950 text-sky-300 border border-sky-800/80';
+        }
+      }
+    }
+
+    if (data.freq !== undefined) {
+      const el = document.getElementById('disp-meter-freq');
+      if (el) el.textContent = data.freq;
+    }
+
+    if (data.totalEnergy !== undefined) {
+      const el = document.getElementById('disp-meter-energy-total');
+      if (el) el.textContent = data.totalEnergy;
+    }
+    if (data.posEnergy !== undefined) {
+      const el = document.getElementById('disp-meter-energy-pos');
+      if (el) el.textContent = `${data.posEnergy} kWh`;
+    }
+    if (data.revEnergy !== undefined) {
+      const el = document.getElementById('disp-meter-energy-rev');
+      if (el) el.textContent = `${data.revEnergy} kWh`;
+    }
+  }
+
+  // Decode Meter Model (FC 0x53)
+  function decodeDDS3366DModel(frameBytes) {
+    const byteCount = frameBytes[2];
+    if (frameBytes.length >= 3 + byteCount) {
+      let ascii = '';
+      for (let i = 0; i < byteCount; i++) {
+        const charCode = frameBytes[3 + i];
+        if (charCode >= 32 && charCode <= 126) {
+          ascii += String.fromCharCode(charCode);
+        }
+      }
+      const modelBadge = document.getElementById('meter-model-badge');
+      if (modelBadge) {
+        modelBadge.textContent = `型号: ${ascii || 'DDS3366D'}`;
+        modelBadge.classList.remove('hidden');
+      }
+      logTerminal(`[DDS3366D] 识别到电表型号: "${ascii}"`, 'info');
+    }
+  }
+
+  // Decode Meter RTC (01F4H~01FAH)
+  function decodeDDS3366DRTC(bytes) {
+    if (bytes.length >= 14) {
+      const sec = (bytes[0] << 8) | bytes[1];
+      const min = (bytes[2] << 8) | bytes[3];
+      const hour = (bytes[4] << 8) | bytes[5];
+      const week = (bytes[6] << 8) | bytes[7];
+      const date = (bytes[8] << 8) | bytes[9];
+      const month = (bytes[10] << 8) | bytes[11];
+      const year = (bytes[12] << 8) | bytes[13];
+
+      const weekNames = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+      const rtcStr = `20${String(year).padStart(2,'0')}-${String(month).padStart(2,'0')}-${String(date).padStart(2,'0')} ${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')} ${weekNames[week] || ''}`;
+
+      const el = document.getElementById('disp-meter-rtc');
+      if (el) el.textContent = rtcStr;
+      logTerminal(`[DDS3366D] 成功读取电表内置时钟: ${rtcStr}`, 'info');
+    }
+  }
+
+  // Simulate standard frame from manual
+  window.simulateMeterFrame = function () {
+    // Typical frame: Address 01, FC 03, ByteCount 0x1A (26 bytes)
+    // 0000H: 0000 3039 -> 123.45 kWh (12345 * 0.01)
+    // 0002H: 0000 3039 -> 123.45 kWh
+    // 0004H: 0000 0000 -> 0.00 kWh
+    // 0006H: 0898 -> 220.0 V (2200 * 0.1)
+    // 0007H: 0000 1450 -> 5.200 A (5200 * 0.001)
+    // 0009H: 0000 2710 -> 1.0000 kW (10000 * 0.0001)
+    // 000BH: 03E3 -> 0.995 (995 * 0.001)
+    // 000CH: 1388 -> 50.00 Hz (5000 * 0.01)
+    // CRC: 56 F8
+    const simFrame = new Uint8Array([
+      0x01, 0x03, 0x1A,
+      0x00, 0x00, 0x30, 0x39, // Total Energy: 123.45 kWh
+      0x00, 0x00, 0x30, 0x39, // Pos Energy: 123.45 kWh
+      0x00, 0x00, 0x00, 0x00, // Rev Energy: 0.00 kWh
+      0x08, 0x98,             // Voltage: 220.0 V
+      0x00, 0x00, 0x14, 0x50, // Current: 5.200 A
+      0x00, 0x00, 0x27, 0x10, // Power: 1.0000 kW (1000.0 W)
+      0x03, 0xE3,             // Power Factor: 0.995
+      0x13, 0x88,             // Frequency: 50.00 Hz
+      0x56, 0xF8              // CRC16
+    ]);
+
+    logTerminal('[仿真测试] 正在加载说明书附录标准 Modbus-RTU 应答报文进行全流程仿真解析...', 'info');
+    processCompletedRxFrame(simFrame);
+    if (typeof window.showToast === 'function') {
+      window.showToast('已加载 DDS3366D 仿真报文并完成全参解析！', 'success');
+    }
+  };
+
+
+// Disconnect Web Serial Port
   window.disconnectWebSerial = async function () {
     logTerminal('正在断开串口并释放物理端口资源...', 'info');
     keepReading = false;

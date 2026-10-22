@@ -98,20 +98,16 @@
   <!-- ================= MAIN CONTENT CONTAINER ================= -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-5">
 
-    <!-- Unsupported Web Serial API Notification Banner -->
-    <div id="serial-unsupported-banner" class="hidden bg-amber-950/80 border-l-4 border-[#F59E0B] p-4 rounded-r-xl shadow-lg">
-      <div class="flex items-start">
-        <div class="flex-shrink-0 text-[#F59E0B]">
-          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
+    <!-- 顶部通信模式指示条 (支持本机直连 / 手机4G远程网关) -->
+    <div id="remote-mode-banner" class="bg-cyan-950/80 border-l-4 border-cyan-500 p-3.5 rounded-r-xl shadow-lg">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+          <span class="text-xs font-bold text-cyan-300">📱 手机 4G / 远程网桥模式</span>
+          <span class="text-[11px] text-slate-400">已连接电脑端串口中继服务，在手机端即可远程收发报文与调试硬件</span>
         </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-semibold text-amber-300">当前浏览器未启用或不支持 Web Serial API</h3>
-          <div class="mt-1 text-xs text-amber-400/90 space-y-1">
-            <p>Web Serial API 需要在基于 Chromium 的现代浏览器（Chrome、Edge、Opera 89+）中，通过 <span class="font-mono bg-amber-900/60 px-1 py-0.5 rounded text-amber-200">https://</span> 或 <span class="font-mono bg-amber-900/60 px-1 py-0.5 rounded text-amber-200">localhost</span> 协议安全访问。</p>
-            <p>即使离线或无物理串口，您也可以直接点击下方的 <strong>「仿真报文回放」</strong> 体验完整的工业报文解码与仪表盘遥测展示。</p>
-          </div>
+        <div id="ws-gateway-status" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-900 text-cyan-400 border border-slate-700">
+          网关: 连接中...
         </div>
       </div>
     </div>
@@ -131,10 +127,22 @@
           </div>
         </div>
 
-        <!-- Port Info -->
-        <div class="text-xs font-mono text-slate-400 flex items-center gap-2">
-          <span>串口标识:</span>
-          <span id="serial-port-name" class="text-cyan-400 font-semibold bg-slate-950 px-2 py-0.5 rounded border border-slate-800">未选择端口</span>
+        <!-- Mode Toggle & Port Info -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
+            <button id="btn-mode-remote" onclick="setCommMode('remote')" type="button" class="px-2.5 py-1 rounded-md bg-[#0066B3] text-white transition flex items-center gap-1 shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+              <span>📱 4G远程</span>
+            </button>
+            <button id="btn-mode-local" onclick="setCommMode('local')" type="button" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span>💻 本机直连</span>
+            </button>
+          </div>
+
+          <div class="text-xs font-mono text-slate-400 flex items-center gap-2">
+            <span id="serial-port-name" class="text-cyan-400 font-semibold bg-slate-950 px-2 py-1 rounded border border-slate-800">未选择端口</span>
+          </div>
         </div>
       </div>
 
@@ -181,6 +189,19 @@
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">通用从站号 (Slave ID)</label>
           <input id="serial-slave-id" type="number" min="1" max="247" value="1" class="w-full text-xs font-mono border border-slate-700 rounded-lg px-2.5 py-2 bg-slate-800 text-cyan-300 font-bold focus:ring-2 focus:ring-[#0066B3] outline-none" />
+        </div>
+
+        <div id="remote-port-selector-wrapper">
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-medium text-cyan-300">电脑物理串口</label>
+            <button onclick="refreshRemotePorts()" type="button" class="text-[10px] text-cyan-400 hover:underline flex items-center gap-0.5">
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              刷新
+            </button>
+          </div>
+          <select id="remote-port-select" class="w-full text-xs font-mono border border-slate-700 rounded-lg px-2.5 py-2 bg-slate-800 text-cyan-300 font-bold focus:ring-2 focus:ring-[#0066B3] outline-none">
+            <option value="COM3">COM3 (USB-SERIAL CH340)</option>
+          </select>
         </div>
 
         <div class="flex gap-2">
@@ -726,6 +747,156 @@
 
     // State Variables
     let serialPort = null;
+    let commMode = 'remote'; // 'remote' (WebSocket 4G网关) or 'local' (Web Serial)
+    let bridgeWs = null;
+    let availableRemotePorts = [];
+
+    window.setCommMode = function (mode) {
+      commMode = mode;
+      const btnRemote = document.getElementById('btn-mode-remote');
+      const btnLocal = document.getElementById('btn-mode-local');
+      const remoteBanner = document.getElementById('remote-mode-banner');
+      const remotePortWrapper = document.getElementById('remote-port-selector-wrapper');
+
+      if (mode === 'remote') {
+        if (btnRemote) btnRemote.className = 'px-2.5 py-1 rounded-md bg-[#0066B3] text-white transition flex items-center gap-1 shadow-sm';
+        if (btnLocal) btnLocal.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1';
+        if (remoteBanner) remoteBanner.classList.remove('hidden');
+        if (remotePortWrapper) remotePortWrapper.classList.remove('hidden');
+        if (!bridgeWs || bridgeWs.readyState !== WebSocket.OPEN) {
+          connectRemoteGateway();
+        }
+        logTerminal('[模式切换] 已激活「📱 手机 4G / 远程网关」模式。', 'info');
+      } else {
+        if (!('serial' in navigator)) {
+          window.showToast('当前设备/浏览器不支持 Web Serial，请在电脑 Chrome 中直连或使用 4G 远程模式', 'warn');
+          return;
+        }
+        if (btnLocal) btnLocal.className = 'px-2.5 py-1 rounded-md bg-[#0066B3] text-white transition flex items-center gap-1 shadow-sm';
+        if (btnRemote) btnRemote.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition flex items-center gap-1';
+        if (remoteBanner) remoteBanner.classList.add('hidden');
+        if (remotePortWrapper) remotePortWrapper.classList.add('hidden');
+        logTerminal('[模式切换] 已切换至「💻 本机 Web Serial 直连」模式。', 'info');
+      }
+    };
+
+    function connectRemoteGateway() {
+      const statusEl = document.getElementById('ws-gateway-status');
+      if (statusEl) {
+        statusEl.textContent = '网关: 连接中...';
+        statusEl.className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-slate-900 text-amber-400 border border-amber-800/60';
+      }
+
+      const isHttps = location.protocol === 'https:';
+      const wsProto = isHttps ? 'wss:' : 'ws:';
+      let wsUrl = '';
+      if (location.host && !location.protocol.startsWith('file')) {
+        wsUrl = `${wsProto}//${location.host}/ws`;
+      } else {
+        wsUrl = 'ws://127.0.0.1:8080/ws';
+      }
+
+      try {
+        if (bridgeWs) {
+          try { bridgeWs.close(); } catch (_) {}
+        }
+        bridgeWs = new WebSocket(wsUrl);
+
+        bridgeWs.onopen = function () {
+          if (statusEl) {
+            statusEl.textContent = '网关: 已在线 ✓';
+            statusEl.className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/80';
+          }
+          logTerminal(`[远程网关] WebSocket 隧道建立成功 (${wsUrl})`, 'info');
+          bridgeWs.send(JSON.stringify({ action: 'list_ports' }));
+        };
+
+        bridgeWs.onmessage = function (event) {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'rx') {
+              if (data.bytes && data.bytes.length > 0) {
+                processCompletedRxFrame(new Uint8Array(data.bytes));
+              }
+            } else if (data.type === 'init' || data.type === 'ports') {
+              if (data.ports) updateRemotePortsDropdown(data.ports);
+              if (data.status) syncRemoteSerialState(data.status);
+            } else if (data.type === 'status') {
+              if (data.status) syncRemoteSerialState(data.status);
+              if (data.msg) logTerminal(`[远程状态] ${data.msg}`, 'info');
+            } else if (data.type === 'error') {
+              logTerminal(`[远程错误] ${data.msg}`, 'error');
+              if (typeof window.showToast === 'function') window.showToast(data.msg, 'error');
+            }
+          } catch (err) {
+            console.error('WS Parse Error:', err);
+          }
+        };
+
+        bridgeWs.onclose = function () {
+          if (statusEl) {
+            statusEl.textContent = '网关: 已断开';
+            statusEl.className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800/80';
+          }
+          if (commMode === 'remote') {
+            setTimeout(connectRemoteGateway, 3500);
+          }
+        };
+
+        bridgeWs.onerror = function () {
+          if (statusEl) {
+            statusEl.textContent = '网关: 离线';
+            statusEl.className = 'text-[11px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800/80';
+          }
+        };
+      } catch (err) {
+        console.error('WS Error:', err);
+      }
+    }
+
+    function updateRemotePortsDropdown(ports) {
+      availableRemotePorts = ports;
+      const select = document.getElementById('remote-port-select');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '';
+      if (!ports || ports.length === 0) {
+        select.innerHTML = '<option value="">未扫描到串口</option>';
+        return;
+      }
+      ports.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.port;
+        opt.textContent = `${p.port} (${p.desc})`;
+        select.appendChild(opt);
+      });
+      if (ports.some(p => p.port === currentVal)) {
+        select.value = currentVal;
+      } else if (ports.some(p => p.port === 'COM3')) {
+        select.value = 'COM3';
+      }
+    }
+
+    function syncRemoteSerialState(status) {
+      if (status && status.connected) {
+        const desc = `远程 ${status.port} (${status.baud}bps 8-${String(status.parity).toUpperCase().charAt(0)}-${status.stopBits})`;
+        updateSerialStatus(true, desc);
+        const sel = document.getElementById('remote-port-select');
+        if (sel && status.port) sel.value = status.port;
+      } else {
+        updateSerialStatus(false);
+      }
+    }
+
+    window.refreshRemotePorts = function () {
+      if (bridgeWs && bridgeWs.readyState === WebSocket.OPEN) {
+        bridgeWs.send(JSON.stringify({ action: 'list_ports' }));
+        logTerminal('[远程网关] 正在请求刷新电脑 COM 口列表...', 'info');
+      } else {
+        connectRemoteGateway();
+      }
+    };
+
     let serialReader = null;
     let serialWriter = null;
     let isConnected = false;
@@ -772,16 +943,14 @@
 
     /* ---------------- Web Serial Support Check ---------------- */
     function initSerialSupportCheck() {
-      const banner = document.getElementById('serial-unsupported-banner');
-      const connectBtn = document.getElementById('serial-btn-connect');
-      if (!('serial' in navigator)) {
-        if (banner) banner.classList.remove('hidden');
-        if (connectBtn) {
-          connectBtn.disabled = true;
-          connectBtn.classList.add('opacity-50', 'cursor-not-allowed');
-          connectBtn.title = '当前浏览器不支持 Web Serial API';
-        }
-        logTerminal('[环境检测] 浏览器不支持 Web Serial API。您仍可点击「仿真回放」测试报文与仪表解析。', 'warn');
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isHttp = location.protocol.startsWith('http');
+      const hasWebSerial = ('serial' in navigator);
+
+      if (isMobile || !hasWebSerial || isHttp) {
+        window.setCommMode('remote');
+      } else {
+        window.setCommMode('local');
       }
     }
 
@@ -820,8 +989,35 @@
 
     /* ---------------- Connect & Disconnect Web Serial ---------------- */
     window.connectWebSerial = async function () {
+      if (commMode === 'remote') {
+        const portSelect = document.getElementById('remote-port-select');
+        const portName = portSelect ? portSelect.value : 'COM3';
+        const baudRate = parseInt(document.getElementById('serial-baud')?.value || '9600', 10);
+        const stopBits = parseInt(document.getElementById('serial-stop-bits')?.value || '1', 10);
+        const parity = document.getElementById('serial-parity')?.value || 'even';
+
+        if (!bridgeWs || bridgeWs.readyState !== WebSocket.OPEN) {
+          logTerminal('[远程网关] WebSocket 隧道未就绪，正在尝试重连...', 'warn');
+          connectRemoteGateway();
+          window.showToast('网关未就绪，正在重新建立隧道...', 'info');
+          return;
+        }
+
+        logTerminal(`[远程串口] 正在命令电脑打开 ${portName} (${baudRate}bps, ${parity})...`, 'info');
+        bridgeWs.send(JSON.stringify({
+          action: 'open',
+          port: portName,
+          baud: baudRate,
+          parity: parity,
+          dataBits: 8,
+          stopBits: stopBits
+        }));
+        return;
+      }
+
       if (!('serial' in navigator)) {
-        window.showToast('当前浏览器不支持 Web Serial API', 'error');
+        window.showToast('当前浏览器不支持 Web Serial API，已自动切换为 4G 远程模式', 'info');
+        window.setCommMode('remote');
         return;
       }
 
@@ -853,6 +1049,14 @@
     };
 
     window.disconnectWebSerial = async function () {
+      if (commMode === 'remote') {
+        if (bridgeWs && bridgeWs.readyState === WebSocket.OPEN) {
+          logTerminal('[远程串口] 正在命令电脑关闭串口...', 'info');
+          bridgeWs.send(JSON.stringify({ action: 'close' }));
+        }
+        updateSerialStatus(false);
+        return;
+      }
       logTerminal('正在断开串口并释放资源...', 'info');
       keepReading = false;
 
@@ -1021,6 +1225,17 @@
       txCount++;
       updateTerminalStats();
       const hexStr = bytesToHex(bytes);
+
+      if (commMode === 'remote') {
+        if (!bridgeWs || bridgeWs.readyState !== WebSocket.OPEN) {
+          logTerminal(`[网关未就绪] TX >> ${hexStr} (无法发送: 远程 WebSocket 未连通)`, 'error');
+          window.showToast('远程网关未连接', 'error');
+          return;
+        }
+        bridgeWs.send(JSON.stringify({ action: 'tx', bytes: Array.from(bytes) }));
+        logTerminal(`TX >> ${hexStr}`, 'tx');
+        return;
+      }
 
       if (!serialPort || !serialPort.writable || !isConnected) {
         logTerminal(`[离线仿真] TX &gt;&gt; ${hexStr}`, 'tx');

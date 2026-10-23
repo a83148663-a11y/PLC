@@ -152,6 +152,11 @@
           <div class="text-xs font-mono text-slate-400 flex items-center gap-2">
             <span id="serial-port-name" class="text-cyan-400 font-semibold bg-slate-950 px-2 py-1 rounded border border-slate-800">未选择端口</span>
           </div>
+
+          <button id="btn-toggle-scanner-top" onclick="toggleSlaveScannerPanel()" type="button" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-800/80 text-cyan-300 hover:text-cyan-200 transition flex items-center gap-1.5 shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <span>从站扫描</span>
+          </button>
         </div>
       </div>
 
@@ -216,6 +221,116 @@
           <button id="serial-btn-disconnect" onclick="disconnectWebSerial()" disabled type="button" class="bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-500 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
             断开
           </button>
+        </div>
+      </div>
+
+      <!-- 485 从站扫描与地址探测功能区 -->
+      <div class="mt-3.5 pt-3 border-t border-slate-800/80">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <button onclick="toggleSlaveScannerPanel()" type="button" class="flex items-center gap-2 text-xs font-bold text-slate-200 hover:text-cyan-300 transition group">
+              <span class="w-5 h-5 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-xs group-hover:bg-cyan-500/20">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </span>
+              <span>RS485 总线从站扫描工具 (Slave Scanner)</span>
+              <svg id="scanner-chevron" class="w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <span id="scanner-badge-summary" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-950 text-slate-400 border border-slate-800">
+              自动探测总线在线从站地址
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs">
+            <span id="scanner-status-text" class="text-[11px] text-slate-400 font-mono">就绪</span>
+          </div>
+        </div>
+
+        <!-- 扫描详细控制面板 -->
+        <div id="slave-scanner-panel" class="mt-2.5 p-3 sm:p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <!-- 扫描参数配置行 -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-12 gap-2.5 items-end">
+            <!-- 扫描起始与结束 -->
+            <div class="col-span-1 md:col-span-2">
+              <label class="block text-[10px] text-slate-400 mb-0.5">起始站号 (1~247)</label>
+              <input id="scan-start-id" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono font-bold bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-amber-400 focus:ring-1 focus:ring-cyan-500 outline-none">
+            </div>
+            <div class="col-span-1 md:col-span-2">
+              <label class="block text-[10px] text-slate-400 mb-0.5">结束站号 (1~247)</label>
+              <input id="scan-end-id" type="number" min="1" max="247" value="32" class="w-full min-w-0 text-xs font-mono font-bold bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-amber-400 focus:ring-1 focus:ring-cyan-500 outline-none">
+            </div>
+
+            <!-- 探测方式 -->
+            <div class="col-span-2 md:col-span-3">
+              <label class="block text-[10px] text-slate-400 mb-0.5">探测指令类型</label>
+              <select id="scan-probe-type" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-slate-200 focus:ring-1 focus:ring-cyan-500 outline-none">
+                <option value="fc03" selected>FC 03 读保持寄存器 0x0000 (通用推荐)</option>
+                <option value="fc01">FC 01 读线圈状态 0x0000</option>
+                <option value="fc04">FC 04 读输入寄存器 0x0000</option>
+                <option value="fc08">FC 08 诊断测试回环 (0x0000)</option>
+              </select>
+            </div>
+
+            <!-- 单站超时 -->
+            <div class="col-span-1 md:col-span-2">
+              <label class="block text-[10px] text-slate-400 mb-0.5">单站响应超时</label>
+              <select id="scan-timeout" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-slate-200 focus:ring-1 focus:ring-cyan-500 outline-none">
+                <option value="120">120ms (极速)</option>
+                <option value="180" selected>180ms (推荐)</option>
+                <option value="300">300ms (长延时)</option>
+                <option value="500">500ms (慢速设备)</option>
+              </select>
+            </div>
+
+            <!-- 操作按钮组 -->
+            <div class="col-span-1 md:col-span-3 flex items-center gap-1.5">
+              <button id="btn-scan-start" onclick="startSlaveScan()" type="button" class="flex-1 min-w-0 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold py-1.5 px-2 rounded shadow transition flex items-center justify-center gap-1">
+                <svg id="scan-spin-icon" class="w-3.5 h-3.5 hidden animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span id="btn-scan-start-text">开始扫描</span>
+              </button>
+              <button id="btn-scan-stop" onclick="stopSlaveScan()" disabled type="button" class="px-2.5 py-1.5 rounded bg-slate-800 text-slate-500 border border-slate-700 text-xs font-semibold hover:bg-rose-950 hover:text-rose-400 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                停止
+              </button>
+              <button onclick="clearScannedSlaves()" type="button" class="px-2.5 py-1.5 rounded bg-slate-800 text-slate-400 border border-slate-700 text-xs hover:text-slate-200 transition" title="清空扫描结果">
+                清空
+              </button>
+            </div>
+          </div>
+
+          <!-- 范围快速选择药丸 & 实时扫描进度 -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs border-t border-slate-900 pt-2">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] text-slate-400">快速范围:</span>
+              <button onclick="setScanRange(1, 16)" type="button" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition">1~16 (极速)</button>
+              <button onclick="setScanRange(1, 32)" type="button" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition">1~32 (标准)</button>
+              <button onclick="setScanRange(1, 64)" type="button" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition">1~64</button>
+              <button onclick="setScanRange(1, 128)" type="button" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition">1~128</button>
+              <button onclick="setScanRange(1, 247)" type="button" class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition">1~247 (全网)</button>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="flex items-center gap-2 min-w-[200px]">
+              <div class="flex-1 bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                <div id="scan-progress-bar" class="bg-cyan-500 h-full w-0 transition-all duration-100 rounded-full"></div>
+              </div>
+              <span id="scan-progress-text" class="text-[10px] font-mono text-slate-400 shrink-0">0%</span>
+            </div>
+          </div>
+
+          <!-- 扫描发现的从站列表结果展示区 -->
+          <div class="bg-slate-900/90 rounded-lg p-2.5 border border-slate-800/80 space-y-2">
+            <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+              <div class="font-bold text-slate-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>扫描发现的在线从站 (Discovered Slaves):</span>
+                <span id="scan-found-count" class="font-mono text-emerald-400 font-bold ml-1">0 台</span>
+              </div>
+              <span id="scan-tip-msg" class="text-[11px] text-slate-400">点击发现的站号，可直接一键填入当前设备模块</span>
+            </div>
+
+            <div id="scan-results-container" class="flex flex-wrap gap-2 pt-1 min-h-[36px] items-center">
+              <span class="text-xs text-slate-500 italic">暂无扫描结果。请点击“开始扫描”自动探测总线在线设备。</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1791,19 +1906,38 @@
       const hexStr = bytesToHex(frameBytes);
 
       // Verify CRC if frame length >= 4
-      let crcStatus = '';
+      let crcValid = false;
+      let crcStatus = "";
       if (frameBytes.length >= 4) {
         const dataPayload = frameBytes.slice(0, frameBytes.length - 2);
         const receivedCrc = [frameBytes[frameBytes.length - 2], frameBytes[frameBytes.length - 1]];
         const computedCrc = calcModbusCRC(dataPayload);
         if (receivedCrc[0] === computedCrc[0] && receivedCrc[1] === computedCrc[1]) {
+          crcValid = true;
           crcStatus = '<span class="text-emerald-400 font-semibold ml-2">[CRC OK]</span>';
         } else {
-          crcStatus = `<span class="text-rose-400 font-semibold ml-2">[CRC 错误: 收到 0x${receivedCrc[0].toString(16).padStart(2,'0')}${receivedCrc[1].toString(16).padStart(2,'0')}, 应为 0x${computedCrc[0].toString(16).padStart(2,'0')}${computedCrc[1].toString(16).padStart(2,'0')}]</span>`;
+          crcStatus = `<span class="text-rose-400 font-semibold ml-2">[CRC 错误: 收到 0x${receivedCrc[0].toString(16).padStart(2,"0")}${receivedCrc[1].toString(16).padStart(2,"0")}, 应为 0x${computedCrc[0].toString(16).padStart(2,"0")}${computedCrc[1].toString(16).padStart(2,"0")}]</span>`;
         }
       }
 
-      logTerminal(`RX &lt;&lt; ${hexStr} ${crcStatus}`, 'rx');
+      // --- 从站扫描探针拦截 (若当前处于从站扫描等待) ---
+      if (slaveScanPending && frameBytes.length >= 3) {
+        if (frameBytes[0] === slaveScanPending.slaveId && (crcValid || frameBytes.length >= 4)) {
+          const resolver = slaveScanPending.resolve;
+          const rtt = Math.round(performance.now() - slaveScanPending.startTime);
+          slaveScanPending = null;
+          logTerminal(`RX &lt;&lt; ${hexStr} ${crcStatus}`, "rx");
+          resolver({
+            found: true,
+            bytes: frameBytes,
+            crcValid: crcValid,
+            rtt: rtt
+          });
+          return;
+        }
+      }
+
+      logTerminal(`RX &lt;&lt; ${hexStr} ${crcStatus}`, "rx");
 
       // --- 0. Modbus FC 01 / FC 02 线圈与离散输入解码 ---
       if (frameBytes.length >= 4 && (frameBytes[1] === 0x01 || frameBytes[1] === 0x02)) {
@@ -1970,33 +2104,40 @@
     }
 
     /* ---------------- Send Raw Bytes ---------------- */
-    async function sendRawBytes(bytes) {
-      txCount++;
-      updateTerminalStats();
+    async function sendRawBytes(bytes, options = {}) {
+      const silent = !!options.silent;
+      if (!silent) {
+        txCount++;
+        updateTerminalStats();
+      }
       const hexStr = bytesToHex(bytes);
 
       if (commMode === 'remote') {
         if (!bridgeWs || bridgeWs.readyState !== WebSocket.OPEN) {
-          logTerminal(`[网关未就绪] TX >> ${hexStr} (无法发送: 远程 WebSocket 未连通)`, 'error');
-          window.showToast('远程网关未连接', 'error');
-          return;
+          if (!silent) {
+            logTerminal(`[网关未就绪] TX >> ${hexStr} (无法发送: 远程 WebSocket 未连通)`, 'error');
+            window.showToast('远程网关未连接', 'error');
+          }
+          return false;
         }
         bridgeWs.send(JSON.stringify({ action: 'tx', bytes: Array.from(bytes) }));
-        logTerminal(`TX >> ${hexStr}`, 'tx');
-        return;
+        if (!silent) logTerminal(`TX >> ${hexStr}`, 'tx');
+        return true;
       }
 
       if (!serialPort || !serialPort.writable || !isConnected) {
-        logTerminal(`[离线仿真] TX &gt;&gt; ${hexStr}`, 'tx');
-        return;
+        if (!silent) logTerminal(`[离线仿真] TX >> ${hexStr}`, 'tx');
+        return false;
       }
 
       try {
         serialWriter = serialPort.writable.getWriter();
         await serialWriter.write(bytes);
-        logTerminal(`TX &gt;&gt; ${hexStr}`, 'tx');
+        if (!silent) logTerminal(`TX >> ${hexStr}`, 'tx');
+        return true;
       } catch (err) {
-        logTerminal(`发送错误: ${err.message}`, 'error');
+        if (!silent) logTerminal(`发送错误: ${err.message}`, 'error');
+        return false;
       } finally {
         if (serialWriter) {
           try { serialWriter.releaseLock(); } catch (_) {}
@@ -3357,6 +3498,382 @@
       sendRawBytes(new Uint8Array(fullFrame));
     };
 
+    /* =========================================================================
+       485 总线从站扫描 (RS-485 Modbus Slave Scanner) 核心引擎
+       ========================================================================= */
+    let isSlaveScanning = false;
+    let slaveScanAbortRequested = false;
+    let slaveScanPending = null;
+    let discoveredSlaves = []; // [{ id, rtt, desc, hex }]
+    let isScannerPanelOpen = true;
+
+    // 折叠/展开扫描控制面板
+    window.toggleSlaveScannerPanel = function (forceOpen) {
+      const panel = document.getElementById('slave-scanner-panel');
+      const chevron = document.getElementById('scanner-chevron');
+      const btnTop = document.getElementById('btn-toggle-scanner-top');
+      if (!panel) return;
+
+      if (forceOpen === true) {
+        isScannerPanelOpen = true;
+      } else if (forceOpen === false) {
+        isScannerPanelOpen = false;
+      } else {
+        isScannerPanelOpen = !isScannerPanelOpen;
+      }
+
+      if (isScannerPanelOpen) {
+        panel.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+        if (btnTop) btnTop.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-cyan-600 text-white border border-cyan-500 transition flex items-center gap-1.5 shadow-sm';
+      } else {
+        panel.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+        if (btnTop) btnTop.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-800/80 text-cyan-300 hover:text-cyan-200 transition flex items-center gap-1.5 shadow-sm';
+      }
+    };
+
+    // 快捷设置扫描范围
+    window.setScanRange = function (start, end) {
+      const elStart = document.getElementById('scan-start-id');
+      const elEnd = document.getElementById('scan-end-id');
+      if (elStart) elStart.value = start;
+      if (elEnd) elEnd.value = end;
+      window.showToast(`已设置扫描范围: ${start} ~ ${end}`, 'info');
+    };
+
+    // 启动从站扫描
+    window.startSlaveScan = async function () {
+      if (isSlaveScanning) return;
+
+      // 检查串口/网桥通信连接状态
+      const isConnectedRemote = (commMode === 'remote' && bridgeWs && bridgeWs.readyState === WebSocket.OPEN);
+      const isConnectedLocal = (commMode === 'local' && isConnected && serialPort);
+
+      if (!isConnectedRemote && !isConnectedLocal) {
+        window.showToast('请先连接串口或连通 4G 远程网桥后再扫描', 'warning');
+        logTerminal('[从站扫描] 无法启动: 串口未连接！请先点击上方的【连接串口】。', 'error');
+        return;
+      }
+
+      // 如果电表或 ModScan 正在自动轮询，暂停以防 485 总线通讯踩踏
+      if (meterPollingTimer) {
+        clearInterval(meterPollingTimer);
+        meterPollingTimer = null;
+        updateMeterPollButtonState(false);
+        logTerminal('[从站扫描] 已自动暂停电表实时轮询，独占 485 总线进行从站探测。', 'warning');
+      }
+      if (typeof modscanPollTimer !== 'undefined' && modscanPollTimer) {
+        clearInterval(modscanPollTimer);
+        modscanPollTimer = null;
+        const pBtn = document.getElementById('btn-modscan-poll');
+        if (pBtn) {
+          pBtn.textContent = '连续轮询';
+          pBtn.className = 'px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition flex items-center gap-1';
+        }
+        logTerminal('[从站扫描] 已自动暂停 ModScan 轮询，独占 485 总线进行从站探测。', 'warning');
+      }
+
+      const startId = parseInt(document.getElementById('scan-start-id').value, 10) || 1;
+      const endId = parseInt(document.getElementById('scan-end-id').value, 10) || 32;
+      const probeType = document.getElementById('scan-probe-type').value || 'fc03';
+      const timeoutMs = parseInt(document.getElementById('scan-timeout').value, 10) || 180;
+
+      if (startId < 1 || startId > 247 || endId < 1 || endId > 247 || startId > endId) {
+        window.showToast('请输入有效的扫描地址范围 (1 ~ 247 且 起始 <= 结束)', 'warning');
+        return;
+      }
+
+      isSlaveScanning = true;
+      slaveScanAbortRequested = false;
+      updateScannerUIState(true);
+
+      logTerminal(`=======================================================`, 'info');
+      logTerminal(`[从站扫描] 🚀 开始探测 RS485 总线从站: 地址 ${startId} ~ ${endId}, 指令=${probeType.toUpperCase()}, 单站超时=${timeoutMs}ms`, 'info');
+
+      const totalAddresses = endId - startId + 1;
+      let scannedCount = 0;
+      let newFoundCount = 0;
+      const scanStartTime = performance.now();
+
+      for (let slaveId = startId; slaveId <= endId; slaveId++) {
+        if (slaveScanAbortRequested) {
+          logTerminal(`[从站扫描] ⏹ 用户中止了从站扫描。`, 'warning');
+          break;
+        }
+
+        scannedCount++;
+        const percent = Math.round((scannedCount / totalAddresses) * 100);
+        updateScanProgress(scannedCount, totalAddresses, percent, slaveId);
+
+        // 构建探测帧
+        let pdu;
+        if (probeType === 'fc01') {
+          pdu = [slaveId, 0x01, 0x00, 0x00, 0x00, 0x01]; // 读线圈 0
+        } else if (probeType === 'fc04') {
+          pdu = [slaveId, 0x04, 0x00, 0x00, 0x00, 0x01]; // 读输入寄存器 0
+        } else if (probeType === 'fc08') {
+          pdu = [slaveId, 0x08, 0x00, 0x00, 0x12, 0x34]; // 回环测试
+        } else {
+          pdu = [slaveId, 0x03, 0x00, 0x00, 0x00, 0x01]; // FC03 读保持寄存器 0 (工业通用推荐)
+        }
+        const crc = calcModbusCRC(pdu);
+        const probeFrame = new Uint8Array([...pdu, crc[0], crc[1]]);
+
+        // 等待单站响应或超时
+        const result = await new Promise((resolve) => {
+          let timer = null;
+          slaveScanPending = {
+            slaveId: slaveId,
+            startTime: performance.now(),
+            resolve: (val) => {
+              if (timer) clearTimeout(timer);
+              resolve(val);
+            }
+          };
+
+          sendRawBytes(probeFrame, { silent: true });
+
+          timer = setTimeout(() => {
+            if (slaveScanPending && slaveScanPending.slaveId === slaveId) {
+              slaveScanPending = null;
+              resolve({ found: false });
+            }
+          }, timeoutMs);
+        });
+
+        if (result && result.found) {
+          newFoundCount++;
+          const rtt = result.rtt;
+          const frame = result.bytes;
+          let desc = '正常数据应答';
+
+          if (frame && frame.length >= 3 && (frame[1] & 0x80)) {
+            const errCode = frame[2];
+            desc = `从站在线 (异常码 0x${errCode.toString(16).padStart(2,'0')})`;
+          } else {
+            if (slaveId === 1) {
+              desc = '正常应答 (DDS3366D/变频器/PLC)';
+            } else {
+              desc = '正常数据应答';
+            }
+          }
+
+          addDiscoveredSlaveRecord({
+            id: slaveId,
+            rtt: rtt,
+            desc: desc,
+            hex: bytesToHex(frame)
+          });
+
+          logTerminal(`[从站发现] 🟢 发现在线从站! 站号=${slaveId} (0x${slaveId.toString(16).padStart(2,'0')}), 响应耗时=${rtt}ms, 应答=${desc}`, 'success');
+        }
+
+        // 帧间静默延迟 20ms，满足 Modbus RTU 3.5 字符规范
+        await new Promise(r => setTimeout(r, 20));
+      }
+
+      const totalElapsed = ((performance.now() - scanStartTime) / 1000).toFixed(1);
+      isSlaveScanning = false;
+      slaveScanPending = null;
+      updateScannerUIState(false);
+
+      const statusEl = document.getElementById('scanner-status-text');
+      const badgeSummary = document.getElementById('scanner-badge-summary');
+      const msg = `扫描完成! 耗时 ${totalElapsed}s, 扫描 ${scannedCount} 个站号, 发现 ${discoveredSlaves.length} 台在线设备。`;
+      if (statusEl) statusEl.textContent = msg;
+      if (badgeSummary) badgeSummary.textContent = `已发现 ${discoveredSlaves.length} 台在线从站`;
+
+      logTerminal(`[从站扫描] 🎉 ${msg}`, discoveredSlaves.length > 0 ? 'success' : 'info');
+      if (discoveredSlaves.length === 0) {
+        logTerminal(`[排错提示] 未检测到任何从站响应，请核对: 1.串口波特率与校验位是否正确; 2.RS485 的 A+/B- 是否接反; 3.从站设备是否已上电。`, 'warning');
+        window.showToast('扫描结束，未发现响应设备，请检查波特率或485接线', 'warning');
+      } else {
+        window.showToast(`扫描完成！发现 ${discoveredSlaves.length} 台在线从站`, 'success');
+      }
+    };
+
+    // 停止扫描
+    window.stopSlaveScan = function () {
+      if (!isSlaveScanning) return;
+      slaveScanAbortRequested = true;
+      const statusEl = document.getElementById('scanner-status-text');
+      if (statusEl) statusEl.textContent = '正在停止扫描...';
+      const stopBtn = document.getElementById('btn-scan-stop');
+      if (stopBtn) stopBtn.textContent = '停止中...';
+    };
+
+    // 清空结果
+    window.clearScannedSlaves = function () {
+      discoveredSlaves = [];
+      const container = document.getElementById('scan-results-container');
+      const countEl = document.getElementById('scan-found-count');
+      const bar = document.getElementById('scan-progress-bar');
+      const pctText = document.getElementById('scan-progress-text');
+      const badgeSummary = document.getElementById('scanner-badge-summary');
+      const statusEl = document.getElementById('scanner-status-text');
+
+      if (container) container.innerHTML = '<span class="text-xs text-slate-500 italic">暂无扫描结果。请点击“开始扫描”自动探测总线在线设备。</span>';
+      if (countEl) countEl.textContent = '0 台';
+      if (bar) bar.style.width = '0%';
+      if (pctText) pctText.textContent = '0%';
+      if (badgeSummary) badgeSummary.textContent = '自动探测总线在线从站地址';
+      if (statusEl) statusEl.textContent = '就绪';
+      window.showToast('已清空扫描结果', 'info');
+    };
+
+    // 更新扫描器按钮与指示器状态
+    function updateScannerUIState(scanning) {
+      const btnStart = document.getElementById('btn-scan-start');
+      const btnStop = document.getElementById('btn-scan-stop');
+      const spinIcon = document.getElementById('scan-spin-icon');
+      const startText = document.getElementById('btn-scan-start-text');
+
+      if (scanning) {
+        if (btnStart) {
+          btnStart.disabled = true;
+          btnStart.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+        if (spinIcon) spinIcon.classList.remove('hidden');
+        if (startText) startText.textContent = '探测中...';
+        if (btnStop) {
+          btnStop.disabled = false;
+          btnStop.textContent = '停止';
+          btnStop.className = 'px-2.5 py-1.5 rounded bg-rose-600 hover:bg-rose-500 text-white border border-rose-500 text-xs font-bold transition shadow';
+        }
+      } else {
+        if (btnStart) {
+          btnStart.disabled = false;
+          btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        if (spinIcon) spinIcon.classList.add('hidden');
+        if (startText) startText.textContent = '开始扫描';
+        if (btnStop) {
+          btnStop.disabled = true;
+          btnStop.textContent = '停止';
+          btnStop.className = 'px-2.5 py-1.5 rounded bg-slate-800 text-slate-500 border border-slate-700 text-xs font-semibold hover:bg-rose-950 hover:text-rose-400 transition disabled:opacity-40 disabled:cursor-not-allowed';
+        }
+      }
+    }
+
+    // 更新扫描进度
+    function updateScanProgress(current, total, percent, probingId) {
+      const bar = document.getElementById('scan-progress-bar');
+      const pctText = document.getElementById('scan-progress-text');
+      const statusEl = document.getElementById('scanner-status-text');
+
+      if (bar) bar.style.width = `${percent}%`;
+      if (pctText) pctText.textContent = `${current}/${total} (${percent}%)`;
+      if (statusEl) statusEl.textContent = `正在探测从站 ID: ${probingId} (0x${probingId.toString(16).padStart(2,'0')})...`;
+    }
+
+    // 记录发现的从站并刷新界面
+    function addDiscoveredSlaveRecord(item) {
+      // 避免重复
+      const existIdx = discoveredSlaves.findIndex(s => s.id === item.id);
+      if (existIdx >= 0) {
+        discoveredSlaves[existIdx] = item;
+      } else {
+        discoveredSlaves.push(item);
+      }
+      discoveredSlaves.sort((a, b) => a.id - b.id);
+      renderDiscoveredSlavesUI();
+    }
+
+    // 渲染扫描发现的从站卡片列表
+    function renderDiscoveredSlavesUI() {
+      const container = document.getElementById('scan-results-container');
+      const countEl = document.getElementById('scan-found-count');
+      const badgeSummary = document.getElementById('scanner-badge-summary');
+      if (!container) return;
+
+      if (countEl) countEl.textContent = `${discoveredSlaves.length} 台`;
+      if (badgeSummary) badgeSummary.textContent = `已发现 ${discoveredSlaves.length} 台在线从站`;
+
+      if (discoveredSlaves.length === 0) {
+        container.innerHTML = '<span class="text-xs text-slate-500 italic">暂无扫描结果。请点击“开始扫描”自动探测总线在线设备。</span>';
+        return;
+      }
+
+      const activeModuleNames = {
+        'meter': '电表模块',
+        'vfd': '变频器模块',
+        'modbus': 'Modbus测控台',
+        'modscan': 'ModScan扫描台'
+      };
+      const activeName = activeModuleNames[currentSerialDevice] || '当前模块';
+
+      container.innerHTML = discoveredSlaves.map(slave => {
+        const hexId = '0x' + slave.id.toString(16).padStart(2, '0');
+        return `
+          <div class="flex items-center gap-2.5 bg-slate-900 border border-emerald-500/40 hover:border-emerald-400 rounded-lg p-2 shadow-sm transition">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <div class="leading-tight">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-white">站号 <strong class="text-emerald-400 font-mono text-sm">${slave.id}</strong></span>
+                <span class="text-[10px] font-mono text-slate-400">(${hexId})</span>
+                <span class="text-[9px] font-mono font-semibold px-1 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">${slave.rtt}ms</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">${slave.desc}</div>
+            </div>
+            <div class="flex items-center gap-1 ml-1 border-l border-slate-800 pl-2">
+              <button onclick="applyScannedSlave(${slave.id})" type="button" class="px-2 py-1 text-[11px] font-bold rounded bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1 shadow" title="填入当前【${activeName}】并生效">
+                <span>应用至${activeName}</span>
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+              <button onclick="applyScannedSlave(${slave.id}, 'all')" type="button" class="px-1.5 py-1 text-[10px] font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="一键设置给电表、变频器、Modbus和ModScan所有模块">
+                全部模块
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 一键应用扫描到的从站号
+    window.applyScannedSlave = function (id, targetModule = null) {
+      const mod = targetModule || currentSerialDevice;
+
+      if (mod === 'all') {
+        const elM = document.getElementById('meter-slave-id'); if (elM) elM.value = id;
+        const elV = document.getElementById('v20-slave-id'); if (elV) elV.value = id;
+        if (typeof syncAllModbusSlaves === 'function') syncAllModbusSlaves(id);
+        const elS = document.getElementById('modscan-slave-id'); if (elS) elS.value = id;
+        if (typeof modscanParams !== 'undefined') modscanParams.slaveId = id;
+        localStorage.setItem('meter_slave_id', id);
+        localStorage.setItem('v20_slave_id', id);
+        logTerminal(`[从站应用] ✓ 已将从站号 ${id} (0x${id.toString(16).padStart(2,'0')}) 一键同步至所有模块（电表、变频器、Modbus功能码、ModScan）！`, 'success');
+        window.showToast(`已将从站号 ${id} 应用至全部模块`, 'success');
+        return;
+      }
+
+      if (mod === 'meter') {
+        const el = document.getElementById('meter-slave-id');
+        if (el) el.value = id;
+        localStorage.setItem('meter_slave_id', id);
+        logTerminal(`[从站应用] ✓ 已将从站号 ${id} (0x${id.toString(16).padStart(2,'0')}) 应用至 雅达 DDS3366D 电表模块`, 'success');
+        window.showToast(`已应用从站号 ${id} 至【电表模块】`, 'success');
+      } else if (mod === 'vfd') {
+        const el = document.getElementById('v20-slave-id');
+        if (el) el.value = id;
+        localStorage.setItem('v20_slave_id', id);
+        logTerminal(`[从站应用] ✓ 已将从站号 ${id} (0x${id.toString(16).padStart(2,'0')}) 应用至 西门子 V20 变频器模块`, 'success');
+        window.showToast(`已应用从站号 ${id} 至【变频器模块】`, 'success');
+      } else if (mod === 'modbus') {
+        const el = document.getElementById('modbus-master-slave-id');
+        if (el) el.value = id;
+        if (typeof syncAllModbusSlaves === 'function') syncAllModbusSlaves(id);
+        logTerminal(`[从站应用] ✓ 已将从站号 ${id} (0x${id.toString(16).padStart(2,'0')}) 同步至 Modbus 标准功能码测控台所有指令`, 'success');
+        window.showToast(`已应用从站号 ${id} 至【Modbus 功能码测控台】`, 'success');
+      } else if (mod === 'modscan') {
+        const el = document.getElementById('modscan-slave-id');
+        if (el) el.value = id;
+        if (typeof modscanParams !== 'undefined') modscanParams.slaveId = id;
+        logTerminal(`[从站应用] ✓ 已将从站号 ${id} (0x${id.toString(16).padStart(2,'0')}) 应用至 ModScan 工业扫描台`, 'success');
+        window.showToast(`已应用从站号 ${id} 至【ModScan 扫描台】`, 'success');
+      }
+    };
+
     /* ---------------- DOM Ready Init ---------------- */
     document.addEventListener('DOMContentLoaded', function () {
       initSerialSupportCheck();
@@ -3386,7 +3903,9 @@
     });
 
   })();
-  </script>
+  
+
+    </script>
 
   <!-- ================= MODSCAN QUICK WRITE MODAL ================= -->
   <div id="modscan-write-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">

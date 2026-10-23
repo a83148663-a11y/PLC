@@ -38,8 +38,17 @@
     }
   </script>
   <style>
+    /* Prevent horizontal overflow on mobile devices */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+    *, ::before, ::after {
+      box-sizing: border-box;
+    }
+
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #475569; }
@@ -186,11 +195,6 @@
           </select>
         </div>
 
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">通用从站号 (Slave ID)</label>
-          <input id="serial-slave-id" type="number" min="1" max="247" value="1" class="w-full text-xs font-mono border border-slate-700 rounded-lg px-2.5 py-2 bg-slate-800 text-cyan-300 font-bold focus:ring-2 focus:ring-[#0066B3] outline-none" />
-        </div>
-
         <div id="remote-port-selector-wrapper">
           <div class="flex items-center justify-between mb-1">
             <label class="block text-xs font-medium text-cyan-300">电脑物理串口</label>
@@ -216,23 +220,36 @@
       </div>
     </div>
 
-    <!-- 2. 设备测控切换器 (雅达电表 vs 西门子变频器) -->
-    <div class="flex items-center justify-between p-2 bg-slate-900 rounded-xl border border-slate-800 shadow-inner">
-      <div class="flex items-center gap-2">
-        <button id="btn-device-meter" onclick="switchSerialDevice('meter')" type="button" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow-md transition flex items-center gap-2">
-          <svg class="w-4 h-4 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-          雅达 DDS3366D 导轨电表
-          <span class="px-1.5 py-0.2 text-[9px] font-mono rounded bg-emerald-950 text-emerald-300 border border-emerald-800">推荐</span>
+    <!-- 2. 设备测控切换器 (手机端 2x2 网格，大屏水平弹性并排) -->
+    <div class="p-2 sm:p-2.5 bg-slate-900 rounded-xl border border-slate-800 shadow-inner flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+      <div class="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 w-full md:w-auto">
+        <button id="btn-device-meter" onclick="switchSerialDevice('meter')" type="button" class="px-2.5 py-2 sm:px-3.5 sm:py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow-md transition flex items-center justify-center sm:justify-start gap-1.5 min-w-0 truncate">
+          <svg class="w-4 h-4 text-emerald-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span class="truncate">雅达 DDS3366D</span>
+          <span class="hidden xl:inline-block px-1.5 py-0.2 text-[9px] font-mono rounded bg-emerald-950 text-emerald-300 border border-emerald-800">推荐</span>
         </button>
-        <button id="btn-device-vfd" onclick="switchSerialDevice('vfd')" type="button" class="px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition flex items-center gap-2">
-          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          西门子 SINAMICS V20 变频器
+
+        <button id="btn-device-vfd" onclick="switchSerialDevice('vfd')" type="button" class="px-2.5 py-2 sm:px-3.5 sm:py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition flex items-center justify-center sm:justify-start gap-1.5 min-w-0 truncate">
+          <svg class="w-4 h-4 text-cyan-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="truncate">西门子 V20 变频器</span>
+        </button>
+
+        <button id="btn-device-modbus" onclick="switchSerialDevice('modbus')" type="button" class="px-2.5 py-2 sm:px-3.5 sm:py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition flex items-center justify-center sm:justify-start gap-1.5 min-w-0 truncate">
+          <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+          <span class="truncate">Modbus 功能码</span>
+          <span class="hidden xl:inline-block px-1.5 py-0.2 text-[9px] font-mono rounded bg-amber-950 text-amber-300 border border-amber-800">FC01~10</span>
+        </button>
+
+        <button id="btn-device-modscan" onclick="switchSerialDevice('modscan')" type="button" class="px-2.5 py-2 sm:px-3.5 sm:py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition flex items-center justify-center sm:justify-start gap-1.5 min-w-0 truncate">
+          <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          <span class="truncate">ModScan 扫描台</span>
+          <span class="hidden xl:inline-block px-1.5 py-0.2 text-[9px] font-mono rounded bg-purple-950 text-purple-300 border border-purple-800">Scan</span>
         </button>
       </div>
 
-      <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400 px-3 font-mono">
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-400 px-2 font-mono shrink-0">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>当前测控设备: <strong id="active-device-name" class="text-emerald-400 font-sans">雅达 DDS3366D 导轨电表</strong></span>
+        <span>当前设备: <strong id="active-device-name" class="text-emerald-400 font-sans">雅达 DDS3366D 导轨电表</strong></span>
       </div>
     </div>
 
@@ -461,14 +478,32 @@
 
         <!-- ================= PANEL B: V20 变频器 ================= -->
         <div id="device-panel-v20" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-5 shadow-lg space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#009999]"></span>
-              <h3 class="font-bold text-slate-100 text-sm">西门子 SINAMICS V20 变频器快捷控制</h3>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-[#009999]/10 border border-[#009999]/20 text-[#00BFBF] flex items-center justify-center font-bold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-slate-100 text-sm">西门子 SINAMICS V20 变频器快捷控制</h3>
+                  <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-700/60">Modbus-RTU</span>
+                  <span class="text-[10px] font-mono text-slate-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800 hidden md:inline-block">40100(STW) / 40101(HSW)</span>
+                </div>
+                <p class="text-[11px] text-slate-400">RS485 通信控制 · STW 控制字启停 / HSW 主设定值调速 / ZSW 状态字监控</p>
+              </div>
             </div>
-            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
-              保持寄存器 40100 (STW) / 40101 (HSW)
-            </span>
+
+            <!-- Quick Actions & Slave ID -->
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 text-xs">
+                <span class="text-slate-400">变频器站号:</span>
+                <input id="v20-slave-id" type="number" min="1" max="247" value="1" onchange="syncV20SlaveId(this.value)" class="w-10 bg-transparent text-center font-mono font-bold text-cyan-400 focus:outline-none">
+              </div>
+              <button onclick="readV20StatusWord()" type="button" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-700 hover:border-cyan-500 bg-slate-800 text-slate-200 hover:text-cyan-400 flex items-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                读状态字(40110)
+              </button>
+            </div>
           </div>
 
           <p id="v20-connect-hint" class="text-xs text-[#F59E0B] flex items-center gap-1.5">
@@ -554,10 +589,629 @@
           </div>
         </div>
 
+        <!-- ================= PANEL C: Modbus 标准功能码测控 ================= -->
+        <div id="device-panel-modbus" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-5 shadow-lg space-y-4">
+          <!-- Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-slate-100 text-sm">Modbus-RTU 标准功能码测控台</h3>
+                  <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700/60">01H ~ 10H 全覆盖</span>
+                </div>
+                <p class="text-[11px] text-slate-400">线圈/离散输入/保持寄存器/输入寄存器指令收发 · 自动追加 CRC16 · 实时解析回显</p>
+              </div>
+            </div>
+
+            <!-- Quick Actions & Slave ID -->
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 text-xs">
+                <span class="text-slate-400">模块站号:</span>
+                <input id="modbus-master-slave-id" type="number" min="1" max="247" value="1" onchange="syncAllModbusSlaves(this.value)" class="w-10 bg-transparent text-center font-mono font-bold text-amber-400 focus:outline-none" title="输入修改可一键同步给下方所有指令的485地址">
+              </div>
+              <button onclick="clearAllModbusResults()" type="button" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-700 hover:border-amber-500 bg-slate-800 text-slate-200 hover:text-amber-400 transition">
+                清空回显
+              </button>
+            </div>
+          </div>
+
+          <!-- Modbus 7 大功能码指令区 (双列网格) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <!-- 1. 01H 指令（读线圈寄存器） -->
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+                <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                  <span>01H 指令（读线圈寄存器）</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <select onchange="applyMbPreset('fc01', this)" class="text-[10px] font-mono bg-slate-900 border border-slate-700 text-cyan-300 rounded px-1.5 py-0.5 outline-none hover:border-cyan-500">
+                    <option value="">⚡ 常用预设下拉...</option>
+                    <option value="0|8|PLC: Q0.0~Q0.7 (8点输出)">📟 PLC: Q0.0~Q0.7 (8点)</option>
+                    <option value="0|16|PLC: Q0.0~Q1.7 (16点输出)">📟 PLC: Q0.0~Q1.7 (16点)</option>
+                    <option value="0|1|PLC: 单点线圈 Q0.0">📟 PLC: 单点线圈 Q0.0 (1点)</option>
+                    <option value="8|8|PLC: 字节2 Q1.0~Q1.7">📟 PLC: 字节2 Q1.0~Q1.7 (8点)</option>
+                    <option value="16|16|PLC: 字2 Q2.0~Q3.7">📟 PLC: 字2 Q2.0~Q3.7 (16点)</option>
+                  </select>
+                  <span class="text-[10px] font-mono text-slate-500">FC 0x01</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-end">
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">485地址</label>
+                  <input id="mb-fc01-slave" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-cyan-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-4">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器地址</label>
+                  <input id="mb-fc01-addr" list="dl-coil-addr" type="text" value="0" placeholder="0 或 0x0000" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器个数</label>
+                  <input id="mb-fc01-qty" list="dl-coil-qty" type="number" min="1" max="2000" value="8" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                  <button onclick="executeModbusFC01()" type="button" class="w-full bg-[#0066B3] hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-2 rounded shadow transition">
+                    读取
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">寄存器值:</label>
+                <input id="mb-fc01-res" type="text" readonly placeholder="待读取..." class="w-full text-xs font-mono bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-emerald-400 font-bold select-all outline-none">
+              </div>
+            </div>
+
+            <!-- 2. 04H 指令（读输入寄存器） -->
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+                <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                  <span>04H 指令（读输入寄存器）</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <select onchange="applyMbPreset('fc04', this)" class="text-[10px] font-mono bg-slate-900 border border-slate-700 text-indigo-300 rounded px-1.5 py-0.5 outline-none hover:border-cyan-500">
+                    <option value="">⚡ 常用预设下拉...</option>
+                    <option value="0|1|模拟量: 通道0 AI0 (30001)">📟 模拟量: 通道0 AI0 (1点)</option>
+                    <option value="0|4|模拟量: 4通道AI模块 (30001~04)">📟 模拟量: 4通道 AI0~3 (4点)</option>
+                    <option value="0|8|模拟量: 8通道AI模块 (30001~08)">📟 模拟量: 8通道 AI0~7 (8点)</option>
+                    <option value="0|2|传感器: 32位高精度双字测量值">⚡ 传感器: 双字测量值 (2点)</option>
+                    <option value="0|10|PLC: 模拟量输入区 10点">📟 PLC: 模拟量输入区 (10点)</option>
+                  </select>
+                  <span class="text-[10px] font-mono text-slate-500">FC 0x04</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-end">
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">485地址</label>
+                  <input id="mb-fc04-slave" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-cyan-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-4">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器地址</label>
+                  <input id="mb-fc04-addr" list="dl-input-reg-addr" type="text" value="0" placeholder="0 或 0x0000" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器个数</label>
+                  <input id="mb-fc04-qty" list="dl-reg-qty" type="number" min="1" max="125" value="4" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                  <button onclick="executeModbusFC04()" type="button" class="w-full bg-[#0066B3] hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-2 rounded shadow transition">
+                    读取
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">寄存器值:</label>
+                <input id="mb-fc04-res" type="text" readonly placeholder="待读取..." class="w-full text-xs font-mono bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-emerald-400 font-bold select-all outline-none">
+              </div>
+            </div>
+
+            <!-- 3. 02H 指令（读离散输入寄存器） -->
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+                <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+                  <span>02H 指令（读离散输入寄存器）</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <select onchange="applyMbPreset('fc02', this)" class="text-[10px] font-mono bg-slate-900 border border-slate-700 text-teal-300 rounded px-1.5 py-0.5 outline-none hover:border-cyan-500">
+                    <option value="">⚡ 常用预设下拉...</option>
+                    <option value="0|8|PLC: I0.0~I0.7 (8点开关量)">📟 PLC: I0.0~I0.7 (8点DI)</option>
+                    <option value="0|16|PLC: I0.0~I1.7 (16点开关量)">📟 PLC: I0.0~I1.7 (16点DI)</option>
+                    <option value="0|1|PLC: 单点输入 I0.0">📟 PLC: 单点输入 I0.0 (1点)</option>
+                    <option value="8|8|PLC: 字节2 I1.0~I1.7">📟 PLC: 字节2 I1.0~I1.7 (8点)</option>
+                    <option value="16|16|PLC: 字2 I2.0~I3.7">📟 PLC: 字2 I2.0~I3.7 (16点)</option>
+                  </select>
+                  <span class="text-[10px] font-mono text-slate-500">FC 0x02</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-end">
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">485地址</label>
+                  <input id="mb-fc02-slave" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-cyan-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-4">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器地址</label>
+                  <input id="mb-fc02-addr" list="dl-discrete-addr" type="text" value="0" placeholder="0 或 0x0000" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器个数</label>
+                  <input id="mb-fc02-qty" list="dl-coil-qty" type="number" min="1" max="2000" value="8" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                  <button onclick="executeModbusFC02()" type="button" class="w-full bg-[#0066B3] hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-2 rounded shadow transition">
+                    读取
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">寄存器值:</label>
+                <input id="mb-fc02-res" type="text" readonly placeholder="待读取..." class="w-full text-xs font-mono bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-emerald-400 font-bold select-all outline-none">
+              </div>
+            </div>
+
+            <!-- 4. 05H 指令（写单个线圈寄存器） -->
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+                <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span>05H 指令（写单个线圈寄存器）</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <select onchange="applyMbPreset('fc05', this)" class="text-[10px] font-mono bg-slate-900 border border-slate-700 text-emerald-300 rounded px-1.5 py-0.5 outline-none hover:border-cyan-500">
+                    <option value="">⚡ 常用预设下拉...</option>
+                    <option value="0|65280|PLC: Q0.0 置通 ON (0xFF00)">📟 PLC: Q0.0 置通 (65280)</option>
+                    <option value="0|0|PLC: Q0.0 断开 OFF (0x0000)">📟 PLC: Q0.0 断开 (0)</option>
+                    <option value="1|65280|PLC: Q0.1 置通 ON">📟 PLC: Q0.1 置通 (65280)</option>
+                    <option value="1|0|PLC: Q0.1 断开 OFF">📟 PLC: Q0.1 断开 (0)</option>
+                    <option value="2|65280|PLC: Q0.2 置通 ON">📟 PLC: Q0.2 置通 (65280)</option>
+                    <option value="2|0|PLC: Q0.2 断开 OFF">📟 PLC: Q0.2 断开 (0)</option>
+                  </select>
+                  <span class="text-[10px] font-mono text-slate-500">FC 0x05</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-end">
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">485地址</label>
+                  <input id="mb-fc05-slave" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-cyan-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-4">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器地址</label>
+                  <input id="mb-fc05-addr" list="dl-coil-write-addr" type="text" value="00003" placeholder="3 或 0x0003" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-3">
+                  <div class="flex items-center justify-between mb-0.5">
+                    <label class="text-[10px] text-slate-400">寄存器值</label>
+                    <span class="text-[9px] text-emerald-400 cursor-pointer font-bold" onclick="document.getElementById('mb-fc05-val').value='65280'" title="置通 ON">通</span>
+                    <span class="text-[9px] text-slate-400 cursor-pointer font-bold" onclick="document.getElementById('mb-fc05-val').value='0'" title="断开 OFF">断</span>
+                  </div>
+                  <input id="mb-fc05-val" list="dl-coil-write-val" type="text" value="65280" placeholder="65280通 / 0断" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-amber-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                  <button onclick="executeModbusFC05()" type="button" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-2 rounded shadow transition">
+                    发送
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                <span>提示: 65280(0xFF00)为置通 ON，0(0x0000)为断开 OFF</span>
+                <span id="mb-fc05-res" class="font-mono font-semibold text-emerald-400"></span>
+              </div>
+            </div>
+
+            <!-- 5. 03H 指令（读保持寄存器） -->
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+                <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                  <span>03H 指令（读保持寄存器）</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <select onchange="applyMbPreset('fc03', this)" class="text-[10px] font-mono bg-slate-900 border border-slate-700 text-blue-300 rounded px-1.5 py-0.5 outline-none hover:border-cyan-500">
+                    <option value="">⚡ 常用预设下拉...</option>
+                    <option value="0x0006|7|电表: 实时工况 U/I/P/PF/f (7点)">⚡ 电表: 工况电参 (0006H / 7点)</option>
+                    <option value="0x0000|6|电表: 组合与正反向电能 (6点)">⚡ 电表: 累计电能 (0000H / 6点)</option>
+                    <option value="0x0000|13|电表: 全量电参数 (13点)">⚡ 电表: 全量数据 (0000H / 13点)</option>
+                    <option value="0x01F4|7|电表: 内置RTC硬件时钟 (7点)">⚡ 电表: RTC时钟 (01F4H / 7点)</option>
+                    <option value="0x01FC|2|电表: PT/CT互感器变比 (2点)">⚡ 电表: 互感器变比 (01FCH / 2点)</option>
+                    <option value="0x006D|1|V20: 状态字 ZSW (40110)">⚙️ V20: 读状态字 (006DH / 1点)</option>
+                    <option value="0x0063|2|V20: 控制字STW+频率HSW (40100~01)">⚙️ V20: 控制字+频率 (0063H / 2点)</option>
+                    <option value="0000|10|PLC: 保持寄存器 D0~D9 (10点)">📟 PLC: 保持寄存器 (0000H / 10点)</option>
+                    <option value="0064|10|PLC: 保持寄存器 D100~D109 (10点)">📟 PLC: 寄存器D100 (0064H / 10点)</option>
+                  </select>
+                  <span class="text-[10px] font-mono text-slate-500">FC 0x03</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-end">
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">485地址</label>
+                  <input id="mb-fc03-slave" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-cyan-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-4">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器地址</label>
+                  <input id="mb-fc03-addr" list="dl-holding-read-addr" type="text" value="0000" placeholder="0 或 0x0000" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器个数</label>
+                  <input id="mb-fc03-qty" list="dl-holding-read-qty" type="number" min="1" max="125" value="10" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                  <button onclick="executeModbusFC03()" type="button" class="w-full bg-[#0066B3] hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-2 rounded shadow transition">
+                    读取
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">寄存器值:</label>
+                <input id="mb-fc03-res" type="text" readonly placeholder="待读取..." class="w-full text-xs font-mono bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-emerald-400 font-bold select-all outline-none">
+              </div>
+            </div>
+
+            <!-- 6. 06H 指令（写单个保持寄存器） -->
+            <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+              <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+                <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  <span>06H 指令（写单个保持寄存器）</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <select onchange="applyMbPreset('fc06', this)" class="text-[10px] font-mono bg-slate-900 border border-slate-700 text-amber-300 rounded px-1.5 py-0.5 outline-none hover:border-cyan-500">
+                    <option value="">⚡ 常用预设下拉...</option>
+                    <option value="0x0063|0x047F|V20: 正转运行 (STW 40100=047FH)">⚙️ V20: 正转运行 (0063H -> 047FH)</option>
+                    <option value="0x0063|0x047E|V20: 停车/就绪准备 (OFF1=047EH)">⚙️ V20: 停车准备 (0063H -> 047EH)</option>
+                    <option value="0x0063|0x0C7F|V20: 反转运行 (STW 40100=0C7FH)">⚙️ V20: 反转运行 (0063H -> 0C7FH)</option>
+                    <option value="0x0063|0x0476|V20: 急停快速制动 (OFF3=0476H)">⚙️ V20: OFF3急停 (0063H -> 0476H)</option>
+                    <option value="0x0064|0x4000|V20: 设定频率 50.0Hz (HSW=4000H)">⚙️ V20: 50.0Hz (0064H -> 4000H)</option>
+                    <option value="0x0064|0x2000|V20: 设定频率 25.0Hz (HSW=2000H)">⚙️ V20: 25.0Hz (0064H -> 2000H)</option>
+                    <option value="0xA000|0x5AA5|电表: 编程开关解锁 (A000H=5AA5H)">⚡ 电表: 编程解锁 (A000H -> 5AA5H)</option>
+                    <option value="0x0227|0x0000|电表: 执行累计电能清零 (0227H=0)">⚡ 电表: 电能清零 (0227H -> 0000H)</option>
+                    <option value="0000|100|PLC: 写入 D0 = 100">📟 PLC: 写入 D0 = 100</option>
+                    <option value="0000|0|PLC: 写入 D0 = 0 (复位)">📟 PLC: 写入 D0 = 0</option>
+                  </select>
+                  <span class="text-[10px] font-mono text-slate-500">FC 0x06</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-12 gap-2 items-end">
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">485地址</label>
+                  <input id="mb-fc06-slave" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-cyan-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-4">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器地址</label>
+                  <input id="mb-fc06-addr" list="dl-holding-write-addr" type="text" value="0x0064" placeholder="551 或 0x0063" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-3">
+                  <label class="block text-[10px] text-slate-400 mb-0.5">寄存器值</label>
+                  <input id="mb-fc06-val" list="dl-holding-write-val" type="text" value="0x4000" placeholder="0 或 0x1234" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-amber-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                  <button onclick="executeModbusFC06()" type="button" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-2 rounded shadow transition">
+                    发送
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+                <span>支持十进制或 0x 前缀十六进制数值写入</span>
+                <span id="mb-fc06-res" class="font-mono font-semibold text-emerald-400"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. 10H 指令（写多个保持寄存器）跨全宽 -->
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between text-xs flex-wrap gap-1">
+              <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                <span>10H 指令（写多个保持寄存器 FC16）</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <select onchange="applyMbPreset('fc10', this)" class="text-[10px] font-mono bg-slate-900 border border-slate-700 text-purple-300 rounded px-1.5 py-0.5 outline-none hover:border-cyan-500">
+                  <option value="">⚡ 常用预设下拉...</option>
+                  <option value="0x0063|0x047F 0x4000|2|V20: 正转启动 + 50Hz (40100~01)">⚙️ V20: 正转启动 + 50Hz (047F 4000)</option>
+                  <option value="0x0063|0x047F 0x2000|2|V20: 正转启动 + 25Hz (40100~01)">⚙️ V20: 正转启动 + 25Hz (047F 2000)</option>
+                  <option value="0x0063|0x047E 0x0000|2|V20: 停车使能 + 0Hz (40100~01)">⚙️ V20: 停车使能 + 0Hz (047E 0000)</option>
+                  <option value="0x0063|0x0476 0x0000|2|V20: 急停快速制动 + 0Hz">⚙️ V20: 急停制动 + 0Hz (0476 0000)</option>
+                  <option value="0000|0 0|2|PLC: D0~D1 双字复位清零">📟 PLC: D0~D1 双字复位 (0 0)</option>
+                  <option value="0000|10 20 30 40|4|PLC: 连续写入 D0~D3 (4个字)">📟 PLC: 写入 D0~D3 (10 20 30 40)</option>
+                  <option value="0000|100 200|2|PLC: D0~D1 写入 100 200">📟 PLC: 写入 D0~D1 (100 200)</option>
+                </select>
+                <span class="text-[10px] font-mono text-slate-500">FC 0x10</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-12 gap-2 items-end">
+              <div class="col-span-3 sm:col-span-2">
+                <label class="block text-[10px] text-slate-400 mb-0.5">485地址</label>
+                <input id="mb-fc10-slave" type="number" min="1" max="247" value="1" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-cyan-300 font-bold focus:ring-1 focus:ring-cyan-500 outline-none">
+              </div>
+              <div class="col-span-3 sm:col-span-2">
+                <label class="block text-[10px] text-slate-400 mb-0.5">寄存器地址</label>
+                <input id="mb-fc10-addr" list="dl-holding-write-addr" type="text" value="0063" placeholder="0 或 0x0063" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-500 outline-none">
+              </div>
+              <div class="col-span-4 sm:col-span-5">
+                <label class="block text-[10px] text-slate-400 mb-0.5">寄存器值 (多个值用空格或逗号分隔)</label>
+                <input id="mb-fc10-val" list="dl-fc10-vals" type="text" value="047F 4000" placeholder="如: 123 456 或 047F 4000" oninput="updateFC10QtyFromInput(this.value)" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-purple-300 font-bold focus:ring-1 focus:ring-purple-500 outline-none">
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-[10px] text-slate-400 mb-0.5">字个数</label>
+                <input id="mb-fc10-qty" list="dl-fc10-qtys" type="number" min="1" max="123" value="2" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-purple-500 outline-none">
+              </div>
+              <div class="col-span-12 sm:col-span-2">
+                <button onclick="executeModbusFC10()" type="button" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold py-1.5 px-3 rounded shadow transition flex items-center justify-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                  发送
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+              <span>自动根据输入数值计算字节数与寄存器数量，并组装 FC10 报文与 CRC 发送</span>
+              <span id="mb-fc10-res" class="font-mono font-semibold text-emerald-400"></span>
+            </div>
+          </div>
+
+          <!-- ================= 常用工业预设 DATALISTS ================= -->
+          <datalist id="dl-coil-addr">
+            <option value="0">0 (PLC: Q0.0 / 00001)</option>
+            <option value="1">1 (PLC: Q0.1 / 00002)</option>
+            <option value="2">2 (PLC: Q0.2 / 00003)</option>
+            <option value="8">8 (PLC: Q1.0 / 字节2起始)</option>
+            <option value="16">16 (PLC: Q2.0 / 字2起始)</option>
+            <option value="100">100 (中间标志位 M0.0)</option>
+          </datalist>
+
+          <datalist id="dl-coil-qty">
+            <option value="1">1 (单点)</option>
+            <option value="8">8 (1个字节 / 8点)</option>
+            <option value="16">16 (1个字 / 16点)</option>
+            <option value="24">24 (3个字节 / 24点)</option>
+            <option value="32">32 (双字 / 32点)</option>
+          </datalist>
+
+          <datalist id="dl-discrete-addr">
+            <option value="0">0 (PLC: I0.0 / 10001)</option>
+            <option value="1">1 (PLC: I0.1 / 10002)</option>
+            <option value="2">2 (PLC: I0.2 / 10003)</option>
+            <option value="8">8 (PLC: I1.0 / 字节2起始)</option>
+            <option value="16">16 (PLC: I2.0 / 字2起始)</option>
+          </datalist>
+
+          <datalist id="dl-input-reg-addr">
+            <option value="0">0 (模拟量: AI0 / 30001)</option>
+            <option value="1">1 (模拟量: AI1 / 30002)</option>
+            <option value="2">2 (模拟量: AI2 / 30003)</option>
+            <option value="3">3 (模拟量: AI3 / 30004)</option>
+            <option value="0064">0064 (传感器测量区 100)</option>
+          </datalist>
+
+          <datalist id="dl-reg-qty">
+            <option value="1">1 (单字)</option>
+            <option value="2">2 (双字 / 32位浮点)</option>
+            <option value="4">4 (4通道模拟量)</option>
+            <option value="8">8 (8通道模拟量)</option>
+            <option value="10">10 (10点整组)</option>
+          </datalist>
+
+          <datalist id="dl-coil-write-addr">
+            <option value="0">0 (PLC: Q0.0)</option>
+            <option value="1">1 (PLC: Q0.1)</option>
+            <option value="2">2 (PLC: Q0.2)</option>
+            <option value="3">3 (PLC: Q0.3)</option>
+            <option value="8">8 (PLC: Q1.0)</option>
+          </datalist>
+
+          <datalist id="dl-coil-write-val">
+            <option value="65280">65280 (0xFF00 置通 ON)</option>
+            <option value="0">0 (0x0000 断开 OFF)</option>
+          </datalist>
+
+          <datalist id="dl-holding-read-addr">
+            <option value="0x0064">0x0064 (⚙️ V20: 频率给定 HSW 40101)</option>
+            <option value="0x0063">0x0063 (⚙️ V20: 控制字 STW 40100)</option>
+            <option value="0x006D">0x006D (⚙️ V20: 状态字 ZSW 40110)</option>
+            <option value="0x0006">0x0006 (⚡ 电表: 实时工况 7点)</option>
+            <option value="0x0000">0x0000 (⚡ 电表: 累计电能 / 📟 PLC: D0起始)</option>
+            <option value="0x01F4">0x01F4 (⚡ 电表: RTC时钟 7点)</option>
+            <option value="0x01FC">0x01FC (⚡ 电表: PT/CT变比)</option>
+            <option value="100">100 (📟 PLC: D100)</option>
+          </datalist>
+
+          <datalist id="dl-holding-read-qty">
+            <option value="1">1 (单字)</option>
+            <option value="2">2 (双字 / 32位数据)</option>
+            <option value="6">6 (电表累计电能 6点)</option>
+            <option value="7">7 (电表工况/时钟 7点)</option>
+            <option value="10">10 (常用10点)</option>
+            <option value="13">13 (电表全量电参数 13点)</option>
+            <option value="20">20 (连续20点)</option>
+          </datalist>
+
+          <datalist id="dl-holding-write-addr">
+            <option value="0x0064">0x0064 (⚙️ V20: 频率给定 HSW 40101)</option>
+            <option value="0x0063">0x0063 (⚙️ V20: 控制字 STW 40100)</option>
+            <option value="0xA000">0xA000 (⚡ 电表: 编程开关解锁)</option>
+            <option value="0x0227">0x0227 (⚡ 电表: 电能清零)</option>
+            <option value="0">0 (📟 PLC: D0起始)</option>
+          </datalist>
+
+          <datalist id="dl-holding-write-val">
+            <option value="0x4000">0x4000 (⚙️ V20: 50.0Hz 频率 / 16384)</option>
+            <option value="0x2000">0x2000 (⚙️ V20: 25.0Hz 频率 / 8192)</option>
+            <option value="0x047F">0x047F (⚙️ V20: 正转运行 / 1151)</option>
+            <option value="0x047E">0x047E (⚙️ V20: 停车就绪 / 1150)</option>
+            <option value="0x0C7F">0x0C7F (⚙️ V20: 反转运行 / 3199)</option>
+            <option value="0x0476">0x0476 (⚙️ V20: OFF3急停 / 1142)</option>
+            <option value="0x5AA5">0x5AA5 (⚡ 电表: 编程解锁 0x5AA5)</option>
+            <option value="0">0 (复位 / 清零)</option>
+            <option value="100">100 (十进制值)</option>
+          </datalist>
+
+          <datalist id="dl-fc10-vals">
+            <option value="047F 4000">047F 4000 (⚙️ V20: 正转 + 50Hz)</option>
+            <option value="047F 2000">047F 2000 (⚙️ V20: 正转 + 25Hz)</option>
+            <option value="047E 0000">047E 0000 (⚙️ V20: 停车 + 0Hz)</option>
+            <option value="0476 0000">0476 0000 (⚙️ V20: 急停 + 0Hz)</option>
+            <option value="0 0">0 0 (双字复位清零)</option>
+            <option value="10 20 30 40">10 20 30 40 (4个连续整数)</option>
+          </datalist>
+
+          <datalist id="dl-fc10-qtys">
+            <option value="2">2 (双字)</option>
+            <option value="4">4 (4个字)</option>
+            <option value="7">7 (7个字)</option>
+            <option value="10">10 (10个字)</option>
+          </datalist>
+        </div>
+
+        <!-- ================= PANEL D: ModScan 寄存器扫描工作台 ================= -->
+        <div id="device-panel-modscan" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-5 shadow-lg space-y-4">
+          <!-- 1. Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-slate-100 text-sm">ModScan 工业寄存器扫描工作台</h3>
+                  <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-700/60">ModScan 原生模式</span>
+                </div>
+                <p class="text-[11px] text-slate-400">连续多点轮询 · 格式动态切换 (DEC/HEX/BIN/Float) · 动态网格实时监听与单点双击改写</p>
+              </div>
+            </div>
+
+            <!-- ModScan 经典统计计数器与站号 -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 text-xs">
+                <span class="text-slate-400">从站号:</span>
+                <input id="modscan-slave-id" type="number" min="1" max="247" value="1" onchange="syncModScanSlaveId(this.value)" class="w-10 bg-transparent text-center font-mono font-bold text-purple-400 focus:outline-none">
+              </div>
+              <div class="bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 flex items-center gap-2 text-xs font-mono">
+                <span>Polls: <strong id="modscan-stat-polls" class="text-cyan-400">0</strong></span>
+                <span class="text-slate-700">|</span>
+                <span>Valid: <strong id="modscan-stat-valid" class="text-emerald-400">0</strong></span>
+                <span class="text-slate-700">|</span>
+                <span>Err: <strong id="modscan-stat-errors" class="text-rose-400">0</strong></span>
+              </div>
+              <button onclick="resetModScanStats()" type="button" class="text-[11px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="重置统计计数">
+                重置
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. ModScan 控制配置参数行 -->
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-2.5 items-end">
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Point Type (点类型)</label>
+                <select id="modscan-point-type" onchange="onModScanPointTypeChange()" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-purple-500 outline-none">
+                  <option value="03" selected>03: HOLDING REG (40001~)</option>
+                  <option value="04">04: INPUT REG (30001~)</option>
+                  <option value="01">01: COIL STATUS (00001~)</option>
+                  <option value="02">02: INPUT STATUS (10001~)</option>
+                </select>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-0.5">
+                  <label class="text-[10px] text-slate-400">Address (起始地址)</label>
+                  <span class="text-[9px] text-purple-400 cursor-pointer" onclick="cycleModScanPresetAddr()">预设</span>
+                </div>
+                <input id="modscan-addr" list="dl-modscan-addr" type="text" value="0x0000" placeholder="0 或 0x0000" class="w-full text-xs font-mono bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-100 font-bold focus:ring-1 focus:ring-purple-500 outline-none">
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Length (扫描长度)</label>
+                <select id="modscan-length" onchange="if(modscanCurrentBytes) reRenderModScanGrid();" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-purple-500 outline-none">
+                  <option value="8">8 点</option>
+                  <option value="10" selected>10 点</option>
+                  <option value="13">13 点 (电表全参)</option>
+                  <option value="16">16 点</option>
+                  <option value="20">20 点</option>
+                  <option value="32">32 点</option>
+                  <option value="50">50 点</option>
+                  <option value="100">100 点</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Display Format (显示格式)</label>
+                <select id="modscan-format" onchange="reRenderModScanGrid()" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-amber-300 font-bold focus:ring-1 focus:ring-purple-500 outline-none">
+                  <option value="uint16" selected>Unsigned 16 (无符号十进制)</option>
+                  <option value="int16">Signed 16 (有符号十进制)</option>
+                  <option value="hex">Hex 16 (十六进制 0x0000)</option>
+                  <option value="bin">Binary (16位二进制)</option>
+                  <option value="float">Float 32 (双字浮点数 CDAB)</option>
+                  <option value="float_swapped">Float 32 (双字浮点数 ABCD)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Scan Rate (轮询周期)</label>
+                <select id="modscan-rate" class="w-full min-w-0 text-xs font-mono bg-slate-900 border border-slate-700 rounded px-1.5 sm:px-2 py-1.5 text-slate-100 focus:ring-1 focus:ring-purple-500 outline-none">
+                  <option value="500">500 ms (高速)</option>
+                  <option value="1000" selected>1000 ms (标准)</option>
+                  <option value="2000">2000 ms (2秒)</option>
+                  <option value="3000">3000 ms (3秒)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 操作按钮行 -->
+            <div class="flex items-center justify-between flex-wrap gap-2 pt-1 border-t border-slate-800/80">
+              <div class="flex items-center gap-2">
+                <button onclick="pollModScanOnce()" type="button" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[#0066B3] hover:bg-blue-600 text-white shadow-sm flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  单次扫描 (Poll Once)
+                </button>
+                <button id="modscan-auto-btn" onclick="toggleModScanAutoScan()" type="button" class="px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-700 hover:border-emerald-500 bg-slate-800 text-slate-200 hover:text-emerald-400 shadow-sm flex items-center gap-1.5 transition">
+                  <span id="modscan-auto-indicator" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                  <span id="modscan-auto-text">启动自动轮询</span>
+                </button>
+              </div>
+
+              <!-- 快捷预设场景按钮 -->
+              <div class="flex items-center gap-1.5 text-[11px] text-slate-400">
+                <span class="text-slate-500 hidden sm:inline">常用模板:</span>
+                <button onclick="applyModScanPreset('meter_all')" type="button" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700">⚡ 电表全量(13点)</button>
+                <button onclick="applyModScanPreset('meter_elec')" type="button" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-teal-400 border border-slate-700">⚡ 电表工况(7点)</button>
+                <button onclick="applyModScanPreset('v20_all')" type="button" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700">⚙️ V20状态(40100~)</button>
+                <button onclick="applyModScanPreset('plc_d')" type="button" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-purple-400 border border-slate-700">📟 PLC D区</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. ModScan 经典数据网格 (Grid Table View) -->
+          <div class="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-inner">
+            <div class="bg-slate-900/90 px-3.5 py-2 flex items-center justify-between border-b border-slate-800 text-xs">
+              <span class="font-bold text-slate-200 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                <span id="modscan-grid-title">40001 ~ 40010 保持寄存器数据监视表</span>
+              </span>
+              <span class="text-[11px] text-slate-400">提示: 点击任意单元格可快速改写数值 (Quick Write)</span>
+            </div>
+
+            <!-- 数据单元格列表容器 -->
+            <div id="modscan-grid-container" class="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 max-h-96 overflow-y-auto">
+              <div class="col-span-full py-10 text-center text-slate-500 text-xs font-mono">
+                点击「单次扫描」或「启动自动轮询」开始抓取设备实时寄存器数据...
+              </div>
+            </div>
+          </div>
+
+          <datalist id="dl-modscan-addr">
+            <option value="0x0000">0x0000 (电表累计电能 / PLC D0)</option>
+            <option value="0x0006">0x0006 (电表实时工况 U/I/P/PF/f)</option>
+            <option value="0x0063">0x0063 (V20 控制字 STW 40100)</option>
+            <option value="0x0064">0x0064 (V20 频率给定 HSW 40101)</option>
+            <option value="0x006D">0x006D (V20 状态字 ZSW 40110)</option>
+            <option value="0x01F4">0x01F4 (电表 RTC 时钟 500)</option>
+            <option value="0">0 (线圈/离散输入 Q0.0 / I0.0)</option>
+          </datalist>
+        </div>
+
       </div>
 
-      <!-- 右侧：自定义报文发送框与快速模板 (5 列) -->
-      <div class="lg:col-span-5 space-y-4">
         <div class="bg-slate-900 rounded-xl shadow-lg border border-slate-800 p-5 space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-slate-800">
             <div class="flex items-center gap-2">
@@ -906,7 +1560,7 @@
     let txCount = 0;
     let rxCount = 0;
 
-    let currentSerialDevice = 'meter'; // default to meter
+    let currentSerialDevice = 'meter'; // 'meter', 'vfd', or 'modbus'
     let meterPollingTimer = null;
 
     /* ---------------- CRC16 Modbus (Poly: 0xA001) ---------------- */
@@ -1151,10 +1805,92 @@
 
       logTerminal(`RX &lt;&lt; ${hexStr} ${crcStatus}`, 'rx');
 
+      // --- 0. Modbus FC 01 / FC 02 线圈与离散输入解码 ---
+      if (frameBytes.length >= 4 && (frameBytes[1] === 0x01 || frameBytes[1] === 0x02)) {
+        const byteCount = frameBytes[2];
+        const bits = [];
+        for (let i = 0; i < byteCount && (3 + i) < (frameBytes.length - 2); i++) {
+          const b = frameBytes[3 + i];
+          for (let bit = 0; bit < 8; bit++) {
+            bits.push((b >> bit) & 1);
+          }
+        }
+        const bitsDisplay = bits.join(' ');
+        if (currentSerialDevice === 'modscan') {
+          modscanStats.valid++;
+          updateModScanStatUI();
+          modscanCurrentBytes = frameBytes;
+          reRenderModScanGrid();
+          logTerminal(`[ModScan应答] 成功更新 ${bits.length} 个线圈/离散输入状态。`, 'info');
+          return;
+        }
+        if (frameBytes[1] === 0x01) {
+          const el = document.getElementById('mb-fc01-res');
+          if (el) el.value = bitsDisplay;
+          logTerminal(`[01H 读线圈返回] 共 ${bits.length} 位: ${bitsDisplay}`, 'info');
+        } else {
+          const el = document.getElementById('mb-fc02-res');
+          if (el) el.value = bitsDisplay;
+          logTerminal(`[02H 读离散输入返回] 共 ${bits.length} 位: ${bitsDisplay}`, 'info');
+        }
+        return;
+      }
+
+      // --- 0.1 Modbus FC 04 输入寄存器解码 ---
+      if (frameBytes.length >= 5 && frameBytes[1] === 0x04) {
+        const byteCount = frameBytes[2];
+        const regValues = [];
+        for (let i = 0; i < byteCount; i += 2) {
+          if (3 + i + 1 < frameBytes.length - 2) {
+            const val = (frameBytes[3 + i] << 8) | frameBytes[3 + i + 1];
+            regValues.push(`${val} (0x${val.toString(16).padStart(4, '0')})`);
+          }
+        }
+        const resStr = regValues.join(', ');
+        if (currentSerialDevice === 'modscan') {
+          modscanStats.valid++;
+          updateModScanStatUI();
+          modscanCurrentBytes = frameBytes;
+          reRenderModScanGrid();
+          logTerminal(`[ModScan应答] 成功更新 ${regValues.length} 个输入寄存器数据。`, 'info');
+          return;
+        }
+        const el = document.getElementById('mb-fc04-res');
+        if (el) el.value = resStr;
+        logTerminal(`[04H 读输入寄存器返回] 共 ${regValues.length} 点: ${resStr}`, 'info');
+        return;
+      }
+
       // --- 1. DDS3366D Meter Decoders (FC 0x03) ---
       if (frameBytes.length >= 5 && frameBytes[1] === 0x03) {
         const byteCount = frameBytes[2];
         const payload = frameBytes.slice(3, 3 + byteCount);
+
+        // 如果处于 ModScan 扫描模式
+        if (currentSerialDevice === 'modscan') {
+          modscanStats.valid++;
+          updateModScanStatUI();
+          modscanCurrentBytes = frameBytes;
+          reRenderModScanGrid();
+          logTerminal(`[ModScan应答] 成功更新 ${Math.floor(byteCount/2)} 个保持寄存器数据。`, 'info');
+          return;
+        }
+
+        // 如果处于通用 Modbus 功能码模式，或者收到任意数量的保持寄存器应答
+        if (currentSerialDevice === 'modbus') {
+          const regValues = [];
+          for (let i = 0; i < byteCount; i += 2) {
+            if (3 + i + 1 < frameBytes.length - 2) {
+              const val = (frameBytes[3 + i] << 8) | frameBytes[3 + i + 1];
+              regValues.push(`${val} (0x${val.toString(16).padStart(4, '0')})`);
+            }
+          }
+          const resStr = regValues.join(', ');
+          const el = document.getElementById('mb-fc03-res');
+          if (el) el.value = resStr;
+          logTerminal(`[03H 读保持寄存器返回] 共 ${regValues.length} 点: ${resStr}`, 'info');
+          return;
+        }
 
         // 26 bytes: All 13 registers from 0000H
         if (byteCount === 26) {
@@ -1192,10 +1928,21 @@
         decodeDDS3366DModel(frameBytes);
         return;
       }
+      // --- 2.5 FC 05 Single Coil Write Echo ---
+      else if (frameBytes.length >= 6 && frameBytes[1] === 0x05) {
+        const regAddr = (frameBytes[2] << 8) | frameBytes[3];
+        const regVal = (frameBytes[4] << 8) | frameBytes[5];
+        const resEl = document.getElementById('mb-fc05-res');
+        if (resEl) resEl.textContent = `✓ 写入成功: 0x${regAddr.toString(16).padStart(4,'0')} = 0x${regVal.toString(16).padStart(4,'0')}`;
+        logTerminal(`Modbus FC05 写线圈应答: 地址 0x${regAddr.toString(16).padStart(4,'0')} = 0x${regVal.toString(16).padStart(4,'0')}`, 'info');
+        return;
+      }
       // --- 3. FC 06 Single Register Write Echo ---
       else if (frameBytes.length >= 6 && frameBytes[1] === 0x06) {
         const regAddr = (frameBytes[2] << 8) | frameBytes[3];
         const regVal = (frameBytes[4] << 8) | frameBytes[5];
+        const resEl = document.getElementById('mb-fc06-res');
+        if (resEl) resEl.textContent = `✓ 写入成功: 0x${regAddr.toString(16).padStart(4,'0')} = ${regVal} (0x${regVal.toString(16).padStart(4,'0')})`;
         logTerminal(`Modbus FC06 写入应答: 寄存器 0x${regAddr.toString(16).padStart(4,'0')} = 0x${regVal.toString(16).padStart(4,'0')} (${regVal})`, 'info');
         return;
       }
@@ -1203,6 +1950,8 @@
       else if (frameBytes.length >= 6 && frameBytes[1] === 0x10) {
         const regAddr = (frameBytes[2] << 8) | frameBytes[3];
         const regQty = (frameBytes[4] << 8) | frameBytes[5];
+        const resEl = document.getElementById('mb-fc10-res');
+        if (resEl) resEl.textContent = `✓ 批量写入成功: 起始 0x${regAddr.toString(16).padStart(4,'0')}, 共 ${regQty} 个字`;
         logTerminal(`Modbus FC10 批量写入应答: 起始 0x${regAddr.toString(16).padStart(4,'0')}, 共 ${regQty} 个寄存器`, 'info');
         return;
       }
@@ -1319,59 +2068,732 @@
       currentSerialDevice = device;
       const vfdPanel = document.getElementById('device-panel-v20');
       const meterPanel = document.getElementById('device-panel-meter');
+      const modbusPanel = document.getElementById('device-panel-modbus');
+      const modscanPanel = document.getElementById('device-panel-modscan');
       const btnVfd = document.getElementById('btn-device-vfd');
       const btnMeter = document.getElementById('btn-device-meter');
+      const btnModbus = document.getElementById('btn-device-modbus');
+      const btnModscan = document.getElementById('btn-device-modscan');
       const nameLabel = document.getElementById('active-device-name');
 
-      if (device === 'meter') {
-        if (vfdPanel) vfdPanel.classList.add('hidden');
-        if (meterPanel) meterPanel.classList.remove('hidden');
+      // 重置所有面板和按钮状态
+      if (vfdPanel) vfdPanel.classList.add('hidden');
+      if (meterPanel) meterPanel.classList.add('hidden');
+      if (modbusPanel) modbusPanel.classList.add('hidden');
+      if (modscanPanel) modscanPanel.classList.add('hidden');
 
-        btnMeter.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white shadow-md transition flex items-center gap-2';
-        btnVfd.className = 'px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition flex items-center gap-2';
+      const baseBtnClass = 'px-2.5 py-2 sm:px-3.5 sm:py-2 text-xs rounded-lg transition flex items-center justify-center sm:justify-start gap-1.5 min-w-0 truncate ';
+      const inactiveClass = baseBtnClass + 'font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800';
+
+      if (btnMeter) btnMeter.className = inactiveClass;
+      if (btnVfd) btnVfd.className = inactiveClass;
+      if (btnModbus) btnModbus.className = inactiveClass;
+      if (btnModscan) btnModscan.className = inactiveClass;
+
+      if (device === 'meter') {
+        if (meterPanel) meterPanel.classList.remove('hidden');
+        if (btnMeter) btnMeter.className = baseBtnClass + 'font-bold bg-emerald-600 text-white shadow-md';
         if (nameLabel) {
           nameLabel.textContent = '雅达 DDS3366D 导轨电表';
           nameLabel.className = 'text-emerald-400 font-sans';
         }
-
-        const meterSlaveInput = document.getElementById('meter-slave-id');
-        const serialSlaveInput = document.getElementById('serial-slave-id');
-        if (meterSlaveInput && serialSlaveInput) {
-          meterSlaveInput.value = serialSlaveInput.value || '1';
-        }
-
         logTerminal('[设备模式] 已切换为: 雅达 DDS3366D 智能单相导轨电能表 (Modbus-RTU 9600 8-E-1/8-N-2)', 'info');
-      } else {
+      } else if (device === 'vfd') {
         if (vfdPanel) vfdPanel.classList.remove('hidden');
-        if (meterPanel) meterPanel.classList.add('hidden');
-
-        btnVfd.className = 'px-4 py-2 text-xs font-bold rounded-lg bg-[#0066B3] text-white shadow-md transition flex items-center gap-2';
-        btnMeter.className = 'px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition flex items-center gap-2';
+        if (btnVfd) btnVfd.className = baseBtnClass + 'font-bold bg-[#0066B3] text-white shadow-md';
         if (nameLabel) {
           nameLabel.textContent = '西门子 SINAMICS V20 变频器';
           nameLabel.className = 'text-cyan-400 font-sans';
         }
-
         if (meterPollingTimer) {
           clearInterval(meterPollingTimer);
           meterPollingTimer = null;
           updateMeterPollButtonState(false);
         }
-
         logTerminal('[设备模式] 已切换为: 西门子 SINAMICS V20 变频器 (Modbus-RTU 19200 8-E-1)', 'info');
+      } else if (device === 'modbus') {
+        if (modbusPanel) modbusPanel.classList.remove('hidden');
+        if (btnModbus) btnModbus.className = baseBtnClass + 'font-bold bg-amber-600 text-white shadow-md';
+        if (nameLabel) {
+          nameLabel.textContent = 'Modbus 标准功能码测控台';
+          nameLabel.className = 'text-amber-400 font-sans';
+        }
+        if (meterPollingTimer) {
+          clearInterval(meterPollingTimer);
+          meterPollingTimer = null;
+          updateMeterPollButtonState(false);
+        }
+        stopModScanPolling();
+        logTerminal('[设备模式] 已切换为: Modbus-RTU 标准功能码测控台 (FC 01/02/03/04/05/06/10)', 'info');
+      } else if (device === 'modscan') {
+        const modscanPanel = document.getElementById('device-panel-modscan');
+        const btnModscan = document.getElementById('btn-device-modscan');
+        if (modscanPanel) modscanPanel.classList.remove('hidden');
+        if (btnModscan) btnModscan.className = baseBtnClass + 'font-bold bg-purple-600 text-white shadow-md';
+        if (nameLabel) {
+          nameLabel.textContent = 'ModScan 工业寄存器扫描工作台';
+          nameLabel.className = 'text-purple-400 font-sans';
+        }
+        if (meterPollingTimer) {
+          clearInterval(meterPollingTimer);
+          meterPollingTimer = null;
+          updateMeterPollButtonState(false);
+        }
+        logTerminal('[设备模式] 已切换为: ModScan 工业寄存器扫描工作台 (连续轮询 / 数据格式视图 / 单点改写)', 'info');
+        if (modscanCurrentBytes) {
+          reRenderModScanGrid();
+        }
       }
     };
 
     window.syncMeterSlaveId = function (val) {
       const sId = parseInt(val, 10) || 1;
-      const serialSlaveInput = document.getElementById('serial-slave-id');
-      if (serialSlaveInput) serialSlaveInput.value = sId;
+      try { localStorage.setItem('meter_slave_id', sId); } catch (_) {}
     };
+
+    window.syncV20SlaveId = function (val) {
+      const sId = parseInt(val, 10) || 1;
+      try { localStorage.setItem('v20_slave_id', sId); } catch (_) {}
+    };
+
+    function getV20SlaveId() {
+      const el = document.getElementById('v20-slave-id');
+      return parseInt(el ? el.value : '1', 10) || 1;
+    }
 
     function getMeterSlaveId() {
       const el = document.getElementById('meter-slave-id');
       return parseInt(el ? el.value : '1', 10) || 1;
     }
+
+
+    /* =============================================================
+       MODSCAN 工业寄存器扫描工作台核心驱动
+       ============================================================= */
+    let modscanPollTimer = null;
+    let modscanStats = { polls: 0, valid: 0, errors: 0 };
+    let modscanCurrentBytes = null;
+    let modscanLastReq = { pointType: '03', slave: 1, pduAddr: 0, qty: 10, plcBase: 40001 };
+    let modscanModalTarget = { addr: 0, pduAddr: 0, pointType: '03', isCoil: false };
+
+    window.syncModScanSlaveId = function (val) {
+      const sId = parseInt(val, 10) || 1;
+      try { localStorage.setItem('modscan_slave_id', sId); } catch (_) {}
+    };
+
+    window.resetModScanStats = function () {
+      modscanStats = { polls: 0, valid: 0, errors: 0 };
+      updateModScanStatUI();
+      window.showToast('ModScan 统计计数器已复位', 'info');
+    };
+
+    function updateModScanStatUI() {
+      const pEl = document.getElementById('modscan-stat-polls');
+      const vEl = document.getElementById('modscan-stat-valid');
+      const eEl = document.getElementById('modscan-stat-errors');
+      if (pEl) pEl.textContent = modscanStats.polls;
+      if (vEl) vEl.textContent = modscanStats.valid;
+      if (eEl) eEl.textContent = modscanStats.errors;
+    }
+
+    window.onModScanPointTypeChange = function () {
+      const pt = document.getElementById('modscan-point-type')?.value || '03';
+      const addrEl = document.getElementById('modscan-addr');
+      const titleEl = document.getElementById('modscan-grid-title');
+
+      if (pt === '03') {
+        if (titleEl) titleEl.textContent = '保持寄存器数据监视表 (Holding Registers 40001~)';
+      } else if (pt === '04') {
+        if (titleEl) titleEl.textContent = '输入寄存器数据监视表 (Input Registers 30001~)';
+      } else if (pt === '01') {
+        if (titleEl) titleEl.textContent = '线圈状态监视表 (Coils 00001~)';
+      } else if (pt === '02') {
+        if (titleEl) titleEl.textContent = '离散输入状态监视表 (Discrete Inputs 10001~)';
+      }
+    };
+
+    window.cycleModScanPresetAddr = function () {
+      const pt = document.getElementById('modscan-point-type')?.value || '03';
+      const addrEl = document.getElementById('modscan-addr');
+      if (!addrEl) return;
+      if (pt === '03') {
+        const presets = ['0x0000', '0x0006', '0x0063', '0x0064', '0x006D', '0x01F4', '100'];
+        const curIdx = presets.indexOf(addrEl.value);
+        addrEl.value = presets[(curIdx + 1) % presets.length];
+      } else if (pt === '04') {
+        const presets = ['0', '1', '2', '3', '0x0064'];
+        const curIdx = presets.indexOf(addrEl.value);
+        addrEl.value = presets[(curIdx + 1) % presets.length];
+      } else {
+        const presets = ['0', '8', '16', '32', '100'];
+        const curIdx = presets.indexOf(addrEl.value);
+        addrEl.value = presets[(curIdx + 1) % presets.length];
+      }
+    };
+
+    window.applyModScanPreset = function (presetType) {
+      const ptSelect = document.getElementById('modscan-point-type');
+      const addrEl = document.getElementById('modscan-addr');
+      const lenSelect = document.getElementById('modscan-length');
+      const formatSelect = document.getElementById('modscan-format');
+
+      if (presetType === 'meter_all') {
+        if (ptSelect) ptSelect.value = '03';
+        if (addrEl) addrEl.value = '0x0000';
+        if (lenSelect) lenSelect.value = '13';
+        if (formatSelect) formatSelect.value = 'uint16';
+        window.showToast('已载入预设: 雅达电表全量数据 (13点)', 'info');
+      } else if (presetType === 'meter_elec') {
+        if (ptSelect) ptSelect.value = '03';
+        if (addrEl) addrEl.value = '0x0006';
+        if (lenSelect) lenSelect.value = '7';
+        if (formatSelect) formatSelect.value = 'uint16';
+        window.showToast('已载入预设: 雅达电表实时工况 (7点)', 'info');
+      } else if (presetType === 'v20_all') {
+        if (ptSelect) ptSelect.value = '03';
+        if (addrEl) addrEl.value = '0x0063';
+        if (lenSelect) lenSelect.value = '16';
+        if (formatSelect) formatSelect.value = 'hex';
+        window.showToast('已载入预设: V20变频器监控区 (0x0063~, 16点)', 'info');
+      } else if (presetType === 'plc_d') {
+        if (ptSelect) ptSelect.value = '03';
+        if (addrEl) addrEl.value = '0x0000';
+        if (lenSelect) lenSelect.value = '10';
+        if (formatSelect) formatSelect.value = 'int16';
+        window.showToast('已载入预设: PLC D0~D9 保持寄存器', 'info');
+      }
+      onModScanPointTypeChange();
+      pollModScanOnce();
+    };
+
+    function parseModScanPduAddr(rawStr, pointType) {
+      let num = parseHexOrDec(rawStr, 0);
+      // 如果输入的是传统的 5 位/6 位 PLC 地址 (如 40001, 30001, 00001, 10001)
+      if (pointType === '03' && num >= 40001) num = num - 40001;
+      else if (pointType === '04' && num >= 30001) num = num - 30001;
+      else if (pointType === '01' && num >= 1 && String(rawStr).startsWith('000')) num = num - 1;
+      else if (pointType === '02' && num >= 10001) num = num - 10001;
+      return Math.max(0, num);
+    }
+
+    window.pollModScanOnce = function () {
+      const slave = parseInt(document.getElementById('modscan-slave-id')?.value || '1', 10);
+      const pointType = document.getElementById('modscan-point-type')?.value || '03';
+      const rawAddrStr = document.getElementById('modscan-addr')?.value || '0';
+      const qty = parseInt(document.getElementById('modscan-length')?.value || '10', 10);
+      const pduAddr = parseModScanPduAddr(rawAddrStr, pointType);
+
+      let fc = 0x03;
+      let plcBase = 40001;
+      if (pointType === '04') { fc = 0x04; plcBase = 30001; }
+      else if (pointType === '01') { fc = 0x01; plcBase = 1; }
+      else if (pointType === '02') { fc = 0x02; plcBase = 10001; }
+
+      modscanLastReq = { pointType, slave, pduAddr, qty, plcBase, fc };
+
+      const frame = [
+        slave, fc,
+        (pduAddr >> 8) & 0xFF, pduAddr & 0xFF,
+        (qty >> 8) & 0xFF, qty & 0xFF
+      ];
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      modscanStats.polls++;
+      updateModScanStatUI();
+
+      const typeNames = { '01': '01H读线圈', '02': '02H读离散输入', '03': '03H读保持寄存器', '04': '04H读输入寄存器' };
+      logTerminal(`[ModScan扫描] ${typeNames[pointType]} 站号=${slave}, 起始=0x${pduAddr.toString(16).padStart(4,'0')}(${pduAddr}), 长度=${qty}点... [${bytesToHex(frame)}]`, 'tx');
+      sendRawBytes(new Uint8Array(frame));
+    };
+
+    function stopModScanPolling() {
+      if (modscanPollTimer) {
+        clearInterval(modscanPollTimer);
+        modscanPollTimer = null;
+        updateModScanAutoBtnState(false);
+      }
+    }
+
+    window.toggleModScanAutoScan = function () {
+      if (modscanPollTimer) {
+        stopModScanPolling();
+        logTerminal('[ModScan] 已停止自动循环扫描。', 'info');
+      } else {
+        const rate = parseInt(document.getElementById('modscan-rate')?.value || '1000', 10);
+        updateModScanAutoBtnState(true);
+        logTerminal(`[ModScan] 已开启自动循环轮询 (扫描周期: ${rate}ms)...`, 'info');
+        pollModScanOnce();
+        modscanPollTimer = setInterval(pollModScanOnce, rate);
+      }
+    };
+
+    function updateModScanAutoBtnState(isAuto) {
+      const ind = document.getElementById('modscan-auto-indicator');
+      const txt = document.getElementById('modscan-auto-text');
+      const btn = document.getElementById('modscan-auto-btn');
+      if (!ind || !txt || !btn) return;
+      if (isAuto) {
+        ind.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        txt.textContent = '停止自动扫描';
+        btn.classList.add('border-emerald-500', 'text-emerald-400');
+      } else {
+        ind.className = 'w-2 h-2 rounded-full bg-slate-500';
+        txt.textContent = '启动自动轮询';
+        btn.classList.remove('border-emerald-500', 'text-emerald-400');
+      }
+    }
+
+    // 格式化数据值
+    function formatModScanDisplay(rawBytes, offset, format, isNextAvailable) {
+      const b0 = rawBytes[offset];
+      const b1 = rawBytes[offset + 1];
+      const raw16 = (b0 << 8) | b1;
+
+      if (format === 'int16') {
+        const signed16 = (raw16 & 0x8000) ? (raw16 - 0x10000) : raw16;
+        return String(signed16);
+      } else if (format === 'hex') {
+        return '0x' + raw16.toString(16).padStart(4, '0').toUpperCase();
+      } else if (format === 'bin') {
+        return raw16.toString(2).padStart(16, '0');
+      } else if (format === 'float' && isNextAvailable) {
+        // CDAB (高字在前)
+        const b2 = rawBytes[offset + 2];
+        const b3 = rawBytes[offset + 3];
+        const buf = new ArrayBuffer(4);
+        const view = new DataView(buf);
+        view.setUint8(0, b0);
+        view.setUint8(1, b1);
+        view.setUint8(2, b2);
+        view.setUint8(3, b3);
+        const fVal = view.getFloat32(0, false);
+        return isNaN(fVal) ? 'NaN' : fVal.toFixed(3);
+      } else if (format === 'float_swapped' && isNextAvailable) {
+        // ABCD (低字在前)
+        const b2 = rawBytes[offset + 2];
+        const b3 = rawBytes[offset + 3];
+        const buf = new ArrayBuffer(4);
+        const view = new DataView(buf);
+        view.setUint8(0, b2);
+        view.setUint8(1, b3);
+        view.setUint8(2, b0);
+        view.setUint8(3, b1);
+        const fVal = view.getFloat32(0, false);
+        return isNaN(fVal) ? 'NaN' : fVal.toFixed(3);
+      }
+      return String(raw16); // uint16
+    }
+
+    window.reRenderModScanGrid = function () {
+      const container = document.getElementById('modscan-grid-container');
+      if (!container || !modscanCurrentBytes) return;
+
+      const format = document.getElementById('modscan-format')?.value || 'uint16';
+      const pointType = modscanLastReq.pointType;
+      const startPdu = modscanLastReq.pduAddr;
+      const plcBase = modscanLastReq.plcBase;
+      const qty = modscanLastReq.qty;
+
+      container.innerHTML = '';
+
+      // 线圈 / 离散输入位模式
+      if (pointType === '01' || pointType === '02') {
+        const byteCount = modscanCurrentBytes[2];
+        const bits = [];
+        for (let i = 0; i < byteCount && (3 + i) < (modscanCurrentBytes.length - 2); i++) {
+          const b = modscanCurrentBytes[3 + i];
+          for (let bit = 0; bit < 8; bit++) {
+            bits.push((b >> bit) & 1);
+          }
+        }
+
+        const renderQty = Math.min(qty, bits.length);
+        for (let i = 0; i < renderQty; i++) {
+          const pdu = startPdu + i;
+          const plcAddr = plcBase + pdu;
+          const bitVal = bits[i];
+          const isCoil = (pointType === '01');
+
+          const card = document.createElement('div');
+          card.className = `p-2.5 rounded-lg border transition-all cursor-pointer flex flex-col justify-between ${bitVal ? 'bg-emerald-950/40 border-emerald-500/40' : 'bg-slate-900 border-slate-800 hover:border-slate-700'}`;
+          card.onclick = () => {
+            if (isCoil) openModScanWriteModal(plcAddr, pdu, pointType, bitVal ? 0 : 65280, true);
+          };
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1">
+              <span>${plcAddr}</span>
+              <span class="text-slate-600">0x${pdu.toString(16).padStart(4,'0')}</span>
+            </div>
+            <div class="flex items-center justify-between my-0.5">
+              <span class="text-xs font-mono font-bold ${bitVal ? 'text-emerald-400' : 'text-slate-400'}">${bitVal ? '1 (ON)' : '0 (OFF)'}</span>
+              <span class="w-3 h-3 rounded-full border ${bitVal ? 'bg-emerald-500 border-emerald-400 shadow-sm shadow-emerald-500' : 'bg-slate-800 border-slate-700'}"></span>
+            </div>
+            <div class="text-[9px] text-slate-500 mt-1 flex justify-between">
+              <span>${isCoil ? '线圈(点改)' : '输入位'}</span>
+              <span class="text-purple-400/80 font-mono">Bit ${i}</span>
+            </div>
+          `;
+          container.appendChild(card);
+        }
+        return;
+      }
+
+      // 保持寄存器 / 输入寄存器模式 (字双字节)
+      const byteCount = modscanCurrentBytes[2];
+      const numWords = Math.floor(byteCount / 2);
+      const renderQty = Math.min(qty, numWords);
+
+      for (let i = 0; i < renderQty; i++) {
+        const offset = 3 + i * 2;
+        const pdu = startPdu + i;
+        const plcAddr = plcBase + pdu;
+        const isNextAvailable = (i + 1 < renderQty);
+        const dispVal = formatModScanDisplay(modscanCurrentBytes, offset, format, isNextAvailable);
+        const raw16 = (modscanCurrentBytes[offset] << 8) | modscanCurrentBytes[offset + 1];
+        const isHolding = (pointType === '03');
+
+        const card = document.createElement('div');
+        card.className = `p-2.5 rounded-lg border transition-all cursor-pointer flex flex-col justify-between bg-slate-900 border-slate-800 hover:border-purple-500/60 shadow-sm hover:shadow-md`;
+        card.onclick = () => {
+          if (isHolding) openModScanWriteModal(plcAddr, pdu, pointType, raw16, false);
+        };
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1">
+            <span class="font-bold text-slate-300">${plcAddr}</span>
+            <span class="text-slate-600">0x${pdu.toString(16).padStart(4,'0')}</span>
+          </div>
+          <div class="my-1">
+            <div class="text-sm font-mono font-bold text-cyan-300 break-all select-all">${dispVal}</div>
+          </div>
+          <div class="text-[9px] text-slate-500 mt-0.5 flex items-center justify-between border-t border-slate-800/80 pt-1 font-mono">
+            <span>0x${raw16.toString(16).padStart(4,'0').toUpperCase()}</span>
+            <span class="text-purple-400/80">${isHolding ? '✎双击改值' : '只读'}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      }
+    };
+
+    window.openModScanWriteModal = function (plcAddr, pduAddr, pointType, currentVal, isCoil) {
+      modscanModalTarget = { plcAddr, pduAddr, pointType, isCoil };
+      const modal = document.getElementById('modscan-write-modal');
+      const label = document.getElementById('mw-addr-label');
+      const valInput = document.getElementById('mw-value-input');
+      const coilToggle = document.getElementById('mw-coil-toggle');
+
+      if (!modal || !label || !valInput) return;
+
+      label.textContent = `${plcAddr} (PDU 0x${pduAddr.toString(16).padStart(4,'0')})`;
+      valInput.value = isCoil ? currentVal : `0x${currentVal.toString(16).padStart(4,'0')}`;
+
+      if (isCoil && coilToggle) coilToggle.classList.remove('hidden');
+      else if (coilToggle) coilToggle.classList.add('hidden');
+
+      modal.classList.remove('hidden');
+      valInput.focus();
+    };
+
+    window.closeModScanWriteModal = function () {
+      const modal = document.getElementById('modscan-write-modal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.executeModScanModalWrite = function () {
+      const slave = parseInt(document.getElementById('modscan-slave-id')?.value || '1', 10);
+      const valStr = document.getElementById('mw-value-input')?.value || '0';
+      const target = modscanModalTarget;
+
+      if (target.isCoil) {
+        // FC05 写单个线圈
+        let coilVal = (valStr === '65280' || valStr === '1' || valStr.toUpperCase() === 'ON') ? 0xFF00 : 0x0000;
+        const frame = [
+          slave, 0x05,
+          (target.pduAddr >> 8) & 0xFF, target.pduAddr & 0xFF,
+          (coilVal >> 8) & 0xFF, coilVal & 0xFF
+        ];
+        const crc = calcModbusCRC(frame);
+        frame.push(crc[0], crc[1]);
+        logTerminal(`[ModScan快速改写] 写线圈 ${target.plcAddr} = 0x${coilVal.toString(16).padStart(4,'0')} [${bytesToHex(frame)}]`, 'tx');
+        sendRawBytes(new Uint8Array(frame));
+      } else {
+        // FC06 写保持寄存器
+        const regVal = parseHexOrDec(valStr, 0);
+        const frame = [
+          slave, 0x06,
+          (target.pduAddr >> 8) & 0xFF, target.pduAddr & 0xFF,
+          (regVal >> 8) & 0xFF, regVal & 0xFF
+        ];
+        const crc = calcModbusCRC(frame);
+        frame.push(crc[0], crc[1]);
+        logTerminal(`[ModScan快速改写] 写保持寄存器 ${target.plcAddr} = 0x${regVal.toString(16).padStart(4,'0')}(${regVal}) [${bytesToHex(frame)}]`, 'tx');
+        sendRawBytes(new Uint8Array(frame));
+      }
+
+      closeModScanWriteModal();
+      window.showToast('修改命令已发送下发！', 'success');
+
+      // 300ms 后自动刷新一次
+      setTimeout(pollModScanOnce, 300);
+    };
+
+    /* ---------------- Modbus Generic Helpers & Handlers ---------------- */
+    function parseHexOrDec(val, defaultVal = 0) {
+      if (val === undefined || val === null || val === '') return defaultVal;
+      let s = String(val).trim();
+      // 1. 如果带有 0x 前缀 (如 0x0064, 0x4000)
+      if (s.toLowerCase().startsWith('0x')) {
+        return parseInt(s.slice(2), 16) || defaultVal;
+      }
+      // 2. 如果以 H 或 h 结尾 (如 0064H, 047Fh)
+      if (s.toLowerCase().endsWith('h')) {
+        return parseInt(s.slice(0, -1), 16) || defaultVal;
+      }
+      // 3. 包含十六进制字母 a-f 或 A-F (如 047F, A000, 5AA5, 0fa0)
+      if (/[a-fA-F]/.test(s)) {
+        return parseInt(s, 16) || defaultVal;
+      }
+      // 4. 带前导 0 的 4 位及以上字符串 (如 0064, 0063, 0006, 0100)，在工控 PDU 地址中必为 Hex
+      if (/^0[0-9]{3,}$/.test(s)) {
+        return parseInt(s, 16) || defaultVal;
+      }
+      // 5. 其余常规纯数字按十进制 (如 100, 16384, 65280)
+      return parseInt(s, 10) || defaultVal;
+    }
+
+    window.syncAllModbusSlaves = function (val) {
+      const sId = parseInt(val, 10) || 1;
+      const ids = ['mb-fc01-slave', 'mb-fc02-slave', 'mb-fc03-slave', 'mb-fc04-slave', 'mb-fc05-slave', 'mb-fc06-slave', 'mb-fc10-slave'];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = sId;
+      });
+      try { localStorage.setItem('modbus_generic_slave_id', sId); } catch (_) {}
+    };
+
+    window.applyMbPreset = function (fc, selectEl) {
+      if (!selectEl || !selectEl.value) return;
+      const val = selectEl.value;
+      const parts = val.split('|');
+
+      if (fc === 'fc01' || fc === 'fc02' || fc === 'fc03' || fc === 'fc04') {
+        const addr = parts[0] || '0';
+        const qty = parts[1] || '1';
+        const label = parts[2] || '';
+
+        const addrEl = document.getElementById(`mb-${fc}-addr`);
+        const qtyEl = document.getElementById(`mb-${fc}-qty`);
+        if (addrEl) addrEl.value = addr;
+        if (qtyEl) qtyEl.value = qty;
+        if (typeof window.showToast === 'function') {
+          window.showToast(`已载入预设: ${label || '地址 ' + addr + ', 个数 ' + qty}`, 'info');
+        }
+      } else if (fc === 'fc05' || fc === 'fc06') {
+        const addr = parts[0] || '0';
+        const regVal = parts[1] || '0';
+        const label = parts[2] || '';
+
+        const addrEl = document.getElementById(`mb-${fc}-addr`);
+        const valEl = document.getElementById(`mb-${fc}-val`);
+        if (addrEl) addrEl.value = addr;
+        if (valEl) valEl.value = regVal;
+        if (typeof window.showToast === 'function') {
+          window.showToast(`已载入预设: ${label || '地址 ' + addr + ', 写入值 ' + regVal}`, 'info');
+        }
+      } else if (fc === 'fc10') {
+        const addr = parts[0] || '0';
+        const regValStr = parts[1] || '0';
+        const qty = parts[2] || '1';
+        const label = parts[3] || '';
+
+        const addrEl = document.getElementById('mb-fc10-addr');
+        const valEl = document.getElementById('mb-fc10-val');
+        const qtyEl = document.getElementById('mb-fc10-qty');
+        if (addrEl) addrEl.value = addr;
+        if (valEl) valEl.value = regValStr;
+        if (qtyEl) qtyEl.value = qty;
+        if (typeof window.showToast === 'function') {
+          window.showToast(`已载入预设: ${label || '起始 ' + addr + ', ' + qty + '个字'}`, 'info');
+        }
+      }
+      selectEl.value = ''; // 重置为提示项，方便下次再次选择
+    };
+
+    window.clearAllModbusResults = function () {
+      ['mb-fc01-res', 'mb-fc02-res', 'mb-fc03-res', 'mb-fc04-res', 'mb-fc05-res', 'mb-fc06-res', 'mb-fc10-res'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (el.tagName === 'INPUT') el.value = '';
+          else el.textContent = '';
+        }
+      });
+      window.showToast('各功能码寄存器回显已清空', 'info');
+    };
+
+    window.updateFC10QtyFromInput = function (val) {
+      const parts = String(val).trim().split(/[\s,]+/).filter(Boolean);
+      const qtyInput = document.getElementById('mb-fc10-qty');
+      if (qtyInput) qtyInput.value = Math.max(1, parts.length);
+    };
+
+    // FC 01: 读线圈寄存器
+    window.executeModbusFC01 = function () {
+      const slave = parseInt(document.getElementById('mb-fc01-slave')?.value || '1', 10);
+      const addr = parseHexOrDec(document.getElementById('mb-fc01-addr')?.value || '0', 0);
+      const qty = parseInt(document.getElementById('mb-fc01-qty')?.value || '1', 10);
+
+      const frame = [
+        slave, 0x01,
+        (addr >> 8) & 0xFF, addr & 0xFF,
+        (qty >> 8) & 0xFF, qty & 0xFF
+      ];
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      logTerminal(`[01H 读线圈] 站号=${slave}, 起始=0x${addr.toString(16).padStart(4,'0')}(${addr}), 点数=${qty}... [${bytesToHex(frame)}]`, 'tx');
+      const resEl = document.getElementById('mb-fc01-res');
+      if (resEl) resEl.value = '读取中...';
+      sendRawBytes(new Uint8Array(frame));
+    };
+
+    // FC 02: 读离散输入
+    window.executeModbusFC02 = function () {
+      const slave = parseInt(document.getElementById('mb-fc02-slave')?.value || '1', 10);
+      const addr = parseHexOrDec(document.getElementById('mb-fc02-addr')?.value || '0', 0);
+      const qty = parseInt(document.getElementById('mb-fc02-qty')?.value || '1', 10);
+
+      const frame = [
+        slave, 0x02,
+        (addr >> 8) & 0xFF, addr & 0xFF,
+        (qty >> 8) & 0xFF, qty & 0xFF
+      ];
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      logTerminal(`[02H 读离散输入] 站号=${slave}, 起始=0x${addr.toString(16).padStart(4,'0')}(${addr}), 点数=${qty}... [${bytesToHex(frame)}]`, 'tx');
+      const resEl = document.getElementById('mb-fc02-res');
+      if (resEl) resEl.value = '读取中...';
+      sendRawBytes(new Uint8Array(frame));
+    };
+
+    // FC 03: 读保持寄存器
+    window.executeModbusFC03 = function () {
+      const slave = parseInt(document.getElementById('mb-fc03-slave')?.value || '1', 10);
+      const addr = parseHexOrDec(document.getElementById('mb-fc03-addr')?.value || '0', 0);
+      const qty = parseInt(document.getElementById('mb-fc03-qty')?.value || '1', 10);
+
+      const frame = [
+        slave, 0x03,
+        (addr >> 8) & 0xFF, addr & 0xFF,
+        (qty >> 8) & 0xFF, qty & 0xFF
+      ];
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      logTerminal(`[03H 读保持寄存器] 站号=${slave}, 起始=0x${addr.toString(16).padStart(4,'0')}(${addr}), 点数=${qty}... [${bytesToHex(frame)}]`, 'tx');
+      const resEl = document.getElementById('mb-fc03-res');
+      if (resEl) resEl.value = '读取中...';
+      sendRawBytes(new Uint8Array(frame));
+    };
+
+    // FC 04: 读输入寄存器
+    window.executeModbusFC04 = function () {
+      const slave = parseInt(document.getElementById('mb-fc04-slave')?.value || '1', 10);
+      const addr = parseHexOrDec(document.getElementById('mb-fc04-addr')?.value || '0', 0);
+      const qty = parseInt(document.getElementById('mb-fc04-qty')?.value || '1', 10);
+
+      const frame = [
+        slave, 0x04,
+        (addr >> 8) & 0xFF, addr & 0xFF,
+        (qty >> 8) & 0xFF, qty & 0xFF
+      ];
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      logTerminal(`[04H 读输入寄存器] 站号=${slave}, 起始=0x${addr.toString(16).padStart(4,'0')}(${addr}), 点数=${qty}... [${bytesToHex(frame)}]`, 'tx');
+      const resEl = document.getElementById('mb-fc04-res');
+      if (resEl) resEl.value = '读取中...';
+      sendRawBytes(new Uint8Array(frame));
+    };
+
+    // FC 05: 写单个线圈
+    window.executeModbusFC05 = function () {
+      const slave = parseInt(document.getElementById('mb-fc05-slave')?.value || '1', 10);
+      const addr = parseHexOrDec(document.getElementById('mb-fc05-addr')?.value || '0', 0);
+      let rawVal = String(document.getElementById('mb-fc05-val')?.value || '0').trim().toUpperCase();
+
+      let coilVal = 0x0000;
+      if (rawVal === '65280' || rawVal === '0XFF00' || rawVal === '1' || rawVal === 'ON' || rawVal === 'TRUE') {
+        coilVal = 0xFF00;
+      } else {
+        coilVal = parseHexOrDec(rawVal, 0) ? 0xFF00 : 0x0000;
+      }
+
+      const frame = [
+        slave, 0x05,
+        (addr >> 8) & 0xFF, addr & 0xFF,
+        (coilVal >> 8) & 0xFF, coilVal & 0xFF
+      ];
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      logTerminal(`[05H 写单个线圈] 站号=${slave}, 地址=0x${addr.toString(16).padStart(4,'0')}(${addr}), 值=0x${coilVal.toString(16).padStart(4,'0')}(${coilVal === 0xFF00 ? '置通ON' : '断开OFF'})... [${bytesToHex(frame)}]`, 'tx');
+      sendRawBytes(new Uint8Array(frame));
+    };
+
+    // FC 06: 写单个保持寄存器
+    window.executeModbusFC06 = function () {
+      const slave = parseInt(document.getElementById('mb-fc06-slave')?.value || '1', 10);
+      const addr = parseHexOrDec(document.getElementById('mb-fc06-addr')?.value || '0', 0);
+      const val = parseHexOrDec(document.getElementById('mb-fc06-val')?.value || '0', 0);
+
+      const frame = [
+        slave, 0x06,
+        (addr >> 8) & 0xFF, addr & 0xFF,
+        (val >> 8) & 0xFF, val & 0xFF
+      ];
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      logTerminal(`[06H 写单个保持寄存器] 站号=${slave}, 地址=0x${addr.toString(16).padStart(4,'0')}(十进制${addr}), 写入值=0x${val.toString(16).padStart(4,'0')}(十进制${val})... [${bytesToHex(frame)}]`, 'tx');
+      sendRawBytes(new Uint8Array(frame));
+    };
+
+    // FC 10: 写多个保持寄存器
+    window.executeModbusFC10 = function () {
+      const slave = parseInt(document.getElementById('mb-fc10-slave')?.value || '1', 10);
+      const addr = parseHexOrDec(document.getElementById('mb-fc10-addr')?.value || '0', 0);
+      const rawValStr = String(document.getElementById('mb-fc10-val')?.value || '').trim();
+      const valTokens = rawValStr.split(/[\s,]+/).filter(Boolean);
+
+      if (valTokens.length === 0) {
+        window.showToast('请输入要写入的寄存器数值', 'error');
+        return;
+      }
+
+      const values = valTokens.map(t => parseHexOrDec(t, 0));
+      const qty = values.length;
+      const byteCount = qty * 2;
+
+      const frame = [
+        slave, 0x10,
+        (addr >> 8) & 0xFF, addr & 0xFF,
+        (qty >> 8) & 0xFF, qty & 0xFF,
+        byteCount
+      ];
+
+      values.forEach(v => {
+        frame.push((v >> 8) & 0xFF, v & 0xFF);
+      });
+
+      const crc = calcModbusCRC(frame);
+      frame.push(crc[0], crc[1]);
+
+      logTerminal(`[10H 写多个保持寄存器] 站号=${slave}, 起始=0x${addr.toString(16).padStart(4,'0')}(${addr}), 个数=${qty}, 值=[${values.join(', ')}]... [${bytesToHex(frame)}]`, 'tx');
+      sendRawBytes(new Uint8Array(frame));
+    };
 
     /* ---------------- DDS3366D Electric Meter Actions ---------------- */
     window.readMeterAllParameters = function () {
@@ -1440,8 +2862,6 @@
       const sec = now.getSeconds();
       const min = now.getMinutes();
       const hour = now.getHours();
-      // 周日: getDay() === 0 (范围 0~6: 0=周日, 1=周一 ... 6=周六)
-      // 注意：不能将 0 改为 7，电表内部 RTC 芯片周寄存器范围为 0~6，传入 7 会导致芯片校验超限拒绝保存！
       const week = now.getDay();
       const date = now.getDate();
       const month = now.getMonth() + 1;
@@ -1462,7 +2882,6 @@
       sendRawBytes(new Uint8Array(unlockFrame));
 
       if (mode === 'fc06') {
-        // FC06 逐点单字写入模式 (01F4H ~ 01FAH)
         const regs = [
           { addr: 0x01F4, name: '秒', val: decToBcd(sec) },
           { addr: 0x01F5, name: '分', val: decToBcd(min) },
@@ -1485,7 +2904,6 @@
             logTerminal(`[DDS3366D FC06对时] 写入 ${r.name} (0x${r.addr.toString(16).toUpperCase()}) = 0x${r.val.toString(16).padStart(2,'0')}... [${bytesToHex(frame)}]`, 'tx');
             sendRawBytes(new Uint8Array(frame));
 
-            // 最后一个寄存器(年)写完后，延时 1000ms 读取校验
             if (idx === regs.length - 1) {
               setTimeout(() => {
                 logTerminal('[DDS3366D] FC06 逐点时钟写入完毕，正在回读核验表内硬件 RTC...', 'info');
@@ -1496,14 +2914,13 @@
         });
 
       } else {
-        // FC10 连续批量写入模式
         setTimeout(() => {
           const frame = [
             slaveId, 0x10, 0x01, 0xF4, 0x00, 0x07, 0x0E,
             0x00, decToBcd(sec),
             0x00, decToBcd(min),
             0x00, decToBcd(hour),
-            0x00, decToBcd(week), // 0=周日 (范围0-6)
+            0x00, decToBcd(week),
             0x00, decToBcd(date),
             0x00, decToBcd(month),
             0x00, decToBcd(year)
@@ -1514,7 +2931,6 @@
           logTerminal(`[DDS3366D 对时] 第 2 步: FC10 批量写入时钟 (${timeStr}, BCD编码)... [${bytesToHex(frame)}]`, 'tx');
           sendRawBytes(new Uint8Array(frame));
 
-          // 延时 1200ms 自动回读时钟（给电表硬件充足时间完成写入，并避免立即读取退出编程）
           setTimeout(() => {
             window.readMeterRTC();
           }, 1200);
@@ -1543,7 +2959,6 @@
         return;
       }
 
-      // Step 1: Unlock programming mode (0xA000 = 0x5AA5)
       const unlockFrame = [slaveId, 0x06, 0xA0, 0x00, 0x5A, 0xA5];
       const unlockCrc = calcModbusCRC(unlockFrame);
       unlockFrame.push(unlockCrc[0], unlockCrc[1]);
@@ -1551,7 +2966,6 @@
       logTerminal(`[DDS3366D] 第一步: 下发编程开关 (0xA000 = 0x5AA5)... [${bytesToHex(unlockFrame)}]`, 'tx');
       sendRawBytes(new Uint8Array(unlockFrame));
 
-      // Step 2: Clear Energy (0x0227 = 0x0000)
       setTimeout(() => {
         const clearFrame = [slaveId, 0x06, 0x02, 0x27, 0x00, 0x00];
         const clearCrc = calcModbusCRC(clearFrame);
@@ -1611,7 +3025,6 @@
     function decodeDDS3366DData(bytes, startRegOffset) {
       const numRegs = bytes.length / 2;
 
-      // 13 registers: all electrical parameters from 0000H
       if (startRegOffset === 0 && numRegs >= 13) {
         const totalEnergy = (toSigned32((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) * 0.01).toFixed(2);
         const posEnergy = (toSigned32((bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7]) * 0.01).toFixed(2);
@@ -1631,7 +3044,6 @@
         return true;
       }
 
-      // 7 registers from 0006H (U, I, P, PF, f)
       if (startRegOffset === 6 && numRegs >= 7) {
         const voltage = (((bytes[0] << 8) | bytes[1]) * 0.1).toFixed(1);
         const currentRaw = (bytes[2] << 24) | (bytes[3] << 16) | (bytes[4] << 8) | bytes[5];
@@ -1647,7 +3059,6 @@
         return true;
       }
 
-      // 6 registers from 0000H (Energy only)
       if (startRegOffset === 0 && numRegs === 6) {
         const totalEnergy = (toSigned32((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) * 0.01).toFixed(2);
         const posEnergy = (toSigned32((bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7]) * 0.01).toFixed(2);
@@ -1764,7 +3175,6 @@
 
     function decodeDDS3366DRTC(bytes) {
       if (bytes.length >= 14) {
-        // DDS3366D 时钟寄存器为 BCD 格式 (每个字低字节为 BCD 码值)
         const bcdToDec = (b) => (((b >> 4) & 0x0F) * 10) + (b & 0x0F);
 
         const sec = bcdToDec(bytes[1]);
@@ -1808,7 +3218,7 @@
 
     /* ---------------- Siemens V20 Inverter Controls ---------------- */
     window.sendV20Control = function (controlWord, desc) {
-      const slaveId = parseInt(document.getElementById('serial-slave-id')?.value || '1', 10);
+      const slaveId = getV20SlaveId();
       const frameWithoutCRC = [
         slaveId,
         0x06,
@@ -1841,7 +3251,7 @@
     };
 
     window.sendV20Frequency = function () {
-      const slaveId = parseInt(document.getElementById('serial-slave-id')?.value || '1', 10);
+      const slaveId = getV20SlaveId();
       const slider = document.getElementById('v20-freq-slider');
       const hz = parseFloat(slider ? slider.value : '25.0');
       const hsw = Math.round((hz / 50.0) * 16384);
@@ -1861,7 +3271,7 @@
     };
 
     window.readV20StatusWord = function () {
-      const slaveId = parseInt(document.getElementById('serial-slave-id')?.value || '1', 10);
+      const slaveId = getV20SlaveId();
       const frameWithoutCRC = [
         slaveId,
         0x03,
@@ -1950,11 +3360,68 @@
     /* ---------------- DOM Ready Init ---------------- */
     document.addEventListener('DOMContentLoaded', function () {
       initSerialSupportCheck();
+      try {
+        const savedMeterSlave = localStorage.getItem('meter_slave_id');
+        if (savedMeterSlave && document.getElementById('meter-slave-id')) {
+          document.getElementById('meter-slave-id').value = savedMeterSlave;
+        }
+        const savedV20Slave = localStorage.getItem('v20_slave_id');
+        if (savedV20Slave && document.getElementById('v20-slave-id')) {
+          document.getElementById('v20-slave-id').value = savedV20Slave;
+        }
+        const savedModbusSlave = localStorage.getItem('modbus_generic_slave_id');
+        if (savedModbusSlave) {
+          const mSlave = document.getElementById('modbus-master-slave-id');
+          if (mSlave) mSlave.value = savedModbusSlave;
+          syncAllModbusSlaves(savedModbusSlave);
+        }
+        const savedModScanSlave = localStorage.getItem('modscan_slave_id');
+        if (savedModScanSlave) {
+          const msSlave = document.getElementById('modscan-slave-id');
+          if (msSlave) msSlave.value = savedModScanSlave;
+        }
+      } catch (_) {}
       updateFreqDisplay(25.0);
       switchSerialDevice('meter'); // Default to meter
     });
 
   })();
   </script>
+
+  <!-- ================= MODSCAN QUICK WRITE MODAL ================= -->
+  <div id="modscan-write-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full p-4 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h4 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+          <span>ModScan 快速修改寄存器</span>
+        </h4>
+        <button onclick="closeModScanWriteModal()" class="text-slate-400 hover:text-white text-lg font-bold leading-none">&times;</button>
+      </div>
+      <div class="text-xs space-y-2.5">
+        <div class="flex justify-between items-center bg-slate-950 p-2 rounded-lg border border-slate-800 font-mono">
+          <span class="text-slate-400">修改目标:</span>
+          <strong id="mw-addr-label" class="text-cyan-400"></strong>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">写入数值 (支持十进制或 0x 十六进制):</label>
+          <input id="mw-value-input" type="text" class="w-full text-xs font-mono bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-amber-300 font-bold focus:ring-1 focus:ring-purple-500 outline-none">
+        </div>
+        <div id="mw-coil-toggle" class="hidden flex gap-2 pt-1">
+          <button onclick="document.getElementById('mw-value-input').value='65280'" type="button" class="flex-1 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded text-xs font-bold">置通 ON (65280)</button>
+          <button onclick="document.getElementById('mw-value-input').value='0'" type="button" class="flex-1 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded text-xs font-bold">断开 OFF (0)</button>
+        </div>
+      </div>
+      <div class="flex gap-2 pt-2 border-t border-slate-800">
+        <button onclick="executeModScanModalWrite()" type="button" class="flex-1 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded shadow transition">
+          确认发送写入
+        </button>
+        <button onclick="closeModScanWriteModal()" type="button" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded border border-slate-700 transition">
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
